@@ -37,7 +37,8 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+#define UART1_Size 20
+#define UART4_Size 20
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -63,8 +64,8 @@ static void MX_UART4_Init(void);
 /* USER CODE BEGIN 0 */
 uint8_t msg1[] = "Hi, Welcome to UART1!!\r\n";
 uint8_t msg2[] = "Hi, Welcome to UART2!!\r\n";
-uint8_t UART1_rxBuffer[12] = {0};
-uint8_t UART4_rxBuffer[12] = {0};
+uint8_t UART1_rxBuffer[UART1_Size ] = {0};
+uint8_t UART4_rxBuffer[UART4_Size ] = {0};
 /* USER CODE END 0 */
 
 /**
@@ -116,18 +117,21 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  //HAL_UART_Receive(&huart4, UART4_rxBuffer, 12, 4000);
 
-	  if(HAL_UART_Receive(&huart4, UART4_rxBuffer, 12, 1000) && (HAL_OK | HAL_TIMEOUT))
+	  if(HAL_UART_Receive(&huart4, UART4_rxBuffer, UART4_Size , 1000) && (HAL_OK | HAL_TIMEOUT))
 	  {
 		  size2 = strlen(UART4_rxBuffer);
 
 		  if ((UART4_rxBuffer[size2-1] == '\r') || (size2 == 12))
 		  {
 			  UART4_rxBuffer[size2] = '\n';
-			  HAL_UART_Transmit(&huart1, UART4_rxBuffer, 12, 50);
-			  memset(UART4_rxBuffer, 0, 12);
+			  HAL_UART_Transmit(&huart1, UART4_rxBuffer, UART4_Size , 2);
+			  //size2 == UART4_Size-1;
+			  memset(UART4_rxBuffer, 0, UART4_Size );
 
 		  }
 	  }
+
+
 
 
 
@@ -141,11 +145,12 @@ int main(void)
 		  if ((UART1_rxBuffer[size1-1] == '\r') || (size1 == 12))
 		  {
 			  UART1_rxBuffer[size1] = '\n';
-			  HAL_UART_Transmit(&huart4, UART1_rxBuffer, 12, 50);
+			  HAL_UART_Transmit(&huart4, UART1_rxBuffer, 12, 2);
 			  memset(UART1_rxBuffer, 0, 12);
 
 		  }
 	  }
+
 
 
 
