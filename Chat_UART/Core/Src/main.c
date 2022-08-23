@@ -115,7 +115,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-/*
+
 
 	  if((HAL_UART_Receive (&huart1, UART1_rxBuffer, UART1_Size, 1000) && (HAL_OK | HAL_TIMEOUT))|(HAL_UART_Receive(&huart4, UART4_rxBuffer, UART4_Size , 1000) && (HAL_OK | HAL_TIMEOUT)))
 	  {
@@ -138,14 +138,14 @@ int main(void)
 		  }
 
 	  }
-*/
 
 
 
 
 
 
-  if(HAL_UART_Receive(&huart4, UART4_rxBuffer, UART4_Size , 5000) && (HAL_OK | HAL_TIMEOUT))
+
+  if(HAL_UART_Receive(&huart4, UART4_rxBuffer, UART4_Size , 1000) && (HAL_OK | HAL_TIMEOUT))
   {
 
 	  size2 = strlen(UART4_rxBuffer);
@@ -157,12 +157,13 @@ int main(void)
 		  UART4_rxBuffer[size2] = '\n';
 		  HAL_UART_Transmit(&huart1, UART4_rxBuffer, UART4_Size , 2);
 		  memset(UART4_rxBuffer, 0, UART4_Size );
-
 	  }
+
 
   }
 
 
+/*
   if(HAL_UART_Receive (&huart1, UART1_rxBuffer, UART1_Size, 5000) && (HAL_OK | HAL_TIMEOUT))
   {
 	  size1 = strlen(UART1_rxBuffer);
@@ -179,6 +180,7 @@ int main(void)
 	  }
   }
 
+*/
 
 
 
