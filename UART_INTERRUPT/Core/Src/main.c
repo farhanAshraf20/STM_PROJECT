@@ -38,7 +38,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define Input_Size 12
+#define Input_Size 20
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -47,7 +47,13 @@ UART_HandleTypeDef huart1;
 /* USER CODE BEGIN PV */
 uint8_t TxBuffer[]="HELLO UART1 INT..!!\r\n";
 uint8_t UART1_rxBuffer[Input_Size] = {0};
+//char *UART1_rxBuffer;
+//uint8_t UART1_rxBuffer;
+char *first;
 uint8_t size =0;
+
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -72,6 +78,9 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 
+	first = UART1_rxBuffer;
+	//printf("address of first :%d\n",first);
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -94,9 +103,13 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  printf("welcome tu UART !!\n");
+  printf("welcome to UART !!\n");
   HAL_UART_Transmit_IT(&huart1, TxBuffer, strlen(TxBuffer));
-  HAL_UART_Receive_IT (&huart1, UART1_rxBuffer, Input_Size);
+
+  HAL_UART_Receive_IT (&huart1, UART1_rxBuffer, 20);
+  //printf("%s\n", first);
+  //HAL_UART_Transmit(&huart1, UART1_rxBuffer, strlen(UART1_rxBuffer), 100);
+ //HAL_UART_Receive_IT (&huart1, UART1_rxBuffer, strlen(UART1_rxBuffer));
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -106,12 +119,70 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  first = UART1_rxBuffer;
+
+	 /* if(size==1)
+	  {
+		  memset(UART1_rxBuffer, 0, Input_Size);
+
+	  }*/
+//
+	  //if(HAL_BUSY != HAL_UART_Receive_IT (&huart1, UART1_rxBuffer, 20))
+	  //{
+	  //HAL_UART_Receive_IT (&huart1, UART1_rxBuffer, 20);
+	  size = strlen(first);
+	  printf("size of input :%d\n",size);
+	  /*if(UART1_rxBuffer[size+1]=='\r')
+	  {
+		  UART1_rxBuffer[size+1]='\r';
+		  UART1_rxBuffer[size+2]='\n';
+		  printf("size of input :%d\n",size);
+		  printf("%s\n", first);
+		  HAL_UART_Transmit(&huart1, &first, Input_Size, 50);
+
+	  if( HAL_UART_Transmit(&huart1, first, Input_Size, 1000) && (HAL_OK | HAL_TIMEOUT))
+		  {
+			  printf("in if condition :\n");
+			  memset(UART1_rxBuffer, 0, Input_Size);
+			  huart1.pRxBuffPtr = first;			//reset RxBuffr Pointer
+		  }
+
+		  break;
+	  }
+*/
+		  //UART1_rxBuffer[size+1]='\n';
+
+		  //memset(UART1_rxBuffer, 0, Input_Size);
+
+		  //huart1.pRxBuffPtr = first;			//reset RxBuffr Pointer
+
+	  //}
+
+	  //temp = first;
 
 
-	  if(huart1.RxXferCount==0)
+
+		  //HAL_UART_Transmit(&huart1, temp, Input_Size, 100);
+
+	 // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/*  if(huart1.RxXferCount==0)
 	  {
 		  HAL_UART_Receive_IT (&huart1, UART1_rxBuffer, Input_Size);
-	  }
+	  }*/
 
 	/*  size= strlen(UART1_rxBuffer);
 	 // printf("size of input string :%d\n",size);
@@ -455,13 +526,16 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+/*void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	printf("CALL Back FUN!!\n");
-    HAL_UART_Transmit(&huart1, UART1_rxBuffer, 12, 100);
-    memset(UART1_rxBuffer, 0, 12);
-    HAL_UART_Receive_IT(&huart1, UART1_rxBuffer, 12);
-}
+	UART1_rxBuffer[Input_Size-2]='\r';
+	UART1_rxBuffer[Input_Size-1]='\n';
+    HAL_UART_Transmit(&huart1, UART1_rxBuffer, Input_Size, 100);
+    //memset(UART1_rxBuffer, 0, 12);
+	//memset(UART1_rxBuffer, 0, Input_Size);
+    HAL_UART_Receive_IT(&huart1, temp, Input_Size);
+}*/
 /* USER CODE END 4 */
 
 /**
