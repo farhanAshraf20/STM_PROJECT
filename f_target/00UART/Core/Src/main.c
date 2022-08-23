@@ -61,7 +61,7 @@ static void MX_UART4_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t msg[] = "Hi, Welcome to UART!!\r\n";
+uint8_t msg[] = "Hi, Welcome to UART!! \r\n";
 uint8_t UART1_rxBuffer[12] = {0};
 /* USER CODE END 0 */
 
@@ -123,8 +123,6 @@ int main(void)
 
 		  }
 	  }
-
-	/**/
 
   }
   /* USER CODE END 3 */
