@@ -61,8 +61,8 @@ all: main-build
 main-build: 00UART.elf secondary-outputs
 
 # Tool invocations
-00UART.elf: $(OBJS) $(USER_OBJS) C:\f2t2\MyWorkspace\targetMcu\00UART\STM32L475VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "00UART.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\f2t2\MyWorkspace\targetMcu\00UART\STM32L475VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="00UART.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+00UART.elf: $(OBJS) $(USER_OBJS) C:\Ashraf_MCU\f_target\00UART\STM32L475VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "00UART.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Ashraf_MCU\f_target\00UART\STM32L475VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="00UART.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
