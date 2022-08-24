@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 /* USER CODE END Includes */
 
@@ -62,8 +63,8 @@ static void MX_UART4_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t msg1[] = "Hi, Welcome to UART1!!\r\n";
-uint8_t msg2[] = "Hi, Welcome to UART2!!\r\n";
+uint8_t msg1[] = "Hi, Welcome to UART1!! \r\n";
+uint8_t msg2[] = "Hi, Welcome to UART2!! \r\n";
 uint8_t UART1_rxBuffer[UART1_Size ] = {0};
 uint8_t UART4_rxBuffer[UART4_Size ] = {0};
 /* USER CODE END 0 */
@@ -117,6 +118,9 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 
+
+/*
+
 	  if((HAL_UART_Receive (&huart1, UART1_rxBuffer, UART1_Size, 1000) && (HAL_OK | HAL_TIMEOUT))|(HAL_UART_Receive(&huart4, UART4_rxBuffer, UART4_Size , 1000) && (HAL_OK | HAL_TIMEOUT)))
 	  {
 		  size1 = strlen(UART1_rxBuffer);
@@ -129,7 +133,7 @@ int main(void)
 			  //size2 == UART4_Size-1;
 			  memset(UART4_rxBuffer, 0, UART4_Size );
 		  }
-		  if ((UART1_rxBuffer[size1-1] == '\r') || (size1 == UART1_Size))
+		  else if ((UART1_rxBuffer[size1-1] == '\r') || (size1 == UART1_Size))
 		  {
 			  UART1_rxBuffer[size1] = '\n';
 			  HAL_UART_Transmit(&huart4, UART1_rxBuffer, UART1_Size, 10);
@@ -139,48 +143,53 @@ int main(void)
 
 	  }
 
-
-
-
-
-
-
-  if(HAL_UART_Receive(&huart4, UART4_rxBuffer, UART4_Size , 1000) && (HAL_OK | HAL_TIMEOUT))
-  {
-
-	  size2 = strlen(UART4_rxBuffer);
-	  printf("BUFFER 4 SIZE OF INPUT :%d\n",size2);
-	  if ((UART4_rxBuffer[size2-1] == '\r') || (size2 == UART4_Size))
-	  {
-		  printf("IN IF BUFFER 4 SIZE OF INPUT :%d\n",size2);
-		  UART4_rxBuffer[size2-1] = '\r';
-		  UART4_rxBuffer[size2] = '\n';
-		  HAL_UART_Transmit(&huart1, UART4_rxBuffer, UART4_Size , 2);
-		  memset(UART4_rxBuffer, 0, UART4_Size );
-	  }
-
-
-  }
-
-
-/*
-  if(HAL_UART_Receive (&huart1, UART1_rxBuffer, UART1_Size, 5000) && (HAL_OK | HAL_TIMEOUT))
-  {
-	  size1 = strlen(UART1_rxBuffer);
-	  printf("BUFFER 1 SIZE OF INPUT :%d\n",size1);
-
-	  if ((UART1_rxBuffer[size1-1] == '\r') || (size1 == UART1_Size))
-	  {
-		  printf("IN IF BUFFER 1 SIZE OF INPUT :%d\n",size1);
-		  UART1_rxBuffer[size1-1] = '\r';
-		  UART1_rxBuffer[size1] = '\n';
-		  HAL_UART_Transmit(&huart4, UART1_rxBuffer, UART1_Size, 2);
-		  memset(UART1_rxBuffer, 0, UART1_Size);
-
-	  }
-  }
-
 */
+
+
+
+
+		  if(HAL_UART_Receive(&huart4, UART4_rxBuffer, UART4_Size , 700) && (HAL_OK | HAL_TIMEOUT))
+		  {
+
+			  size2 = strlen(UART4_rxBuffer);
+			  printf("BUFFER 4 SIZE OF INPUT :%d\n",size2);
+			  if((UART4_rxBuffer[size2-1] == '\r') || (size2 == UART4_Size))
+			  {
+				  printf("IN IF BUFFER 4 SIZE OF INPUT :%d\n",size2);
+				  UART4_rxBuffer[size2-1] = '\r';
+				  UART4_rxBuffer[size2] = '\n';
+				  HAL_UART_Transmit(&huart1, UART4_rxBuffer, UART4_Size , 2);
+				  memset(UART4_rxBuffer, 0, UART4_Size );
+
+			  }
+
+
+		  }
+
+
+		  if(HAL_UART_Receive (&huart1, UART1_rxBuffer, UART1_Size, 700) && (HAL_OK | HAL_TIMEOUT))
+		    {
+		  	  size1 = strlen(UART1_rxBuffer);
+		  	  printf("BUFFER 1 SIZE OF INPUT :%d\n",size1);
+
+		  	  if((UART1_rxBuffer[size1-1] == '\r') || (size1 == UART1_Size))
+		  	  {
+		  		  printf("IN IF BUFFER 1 SIZE OF INPUT :%d\n",size1);
+		  		  UART1_rxBuffer[size1-1] = '\r';
+		  		  UART1_rxBuffer[size1] = '\n';
+		  		  HAL_UART_Transmit(&huart4, UART1_rxBuffer, UART1_Size, 2);
+		  		  memset(UART1_rxBuffer, 0, UART1_Size);
+
+		  	  }
+
+
+		    }
+
+
+
+
+
+
 
 
 
