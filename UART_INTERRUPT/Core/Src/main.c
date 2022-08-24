@@ -531,7 +531,7 @@ static void MX_GPIO_Init(void)
 	printf("CALL Back FUN!!\n");
 	UART1_rxBuffer[Input_Size-2]='\r';
 	UART1_rxBuffer[Input_Size-1]='\n';
-    HAL_UART_Transmit(&huart1, UART1_rxBuffer, Input_Size, 100);
+   // HAL_UART_Transmit(&huart1, UART1_rxBuffer, Input_Size, 100);
     //memset(UART1_rxBuffer, 0, 12);
 	//memset(UART1_rxBuffer, 0, Input_Size);
     HAL_UART_Receive_IT(&huart1, temp, Input_Size);
