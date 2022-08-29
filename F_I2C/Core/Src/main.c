@@ -122,6 +122,64 @@ static void MX_I2C2_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+	void f_Temperature()
+	{
+		// Temperature
+		temp_value = BSP_TSENSOR_ReadTemp();
+		int tmpInt1 = temp_value;
+		float tmpFrac = temp_value - tmpInt1;
+		int tmpInt2 = trunc(tmpFrac * 100);
+		snprintf(str_tmp,100," TEMPERATURE = %d.%02d \r", tmpInt1, tmpInt2);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),500);
+		memset(str_tmp, 0, sizeof(str_tmp));
+	}
+	void f_Humidity()
+	{
+		// Humidity
+		humi_value = BSP_HSENSOR_ReadHumidity();
+		int humiInt1 = humi_value;
+		float humiFrac = humi_value - humiInt1;
+		int humiInt2 = trunc(humiFrac * 100);
+		snprintf(str_humi,100," HUMIDITY = %d.%02d \r", humiInt1, humiInt2);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),500);
+	}
+
+	void f_Pressure()
+	{
+		//	Pressure
+
+		pre_value = BSP_PSENSOR_ReadPressure();
+		int preInt1 = pre_value;
+		float preFrac = pre_value - preInt1;
+		int preInt2 = trunc(preFrac * 100);
+		snprintf(str_pre,100," PRESSURE = %d.%02d \r", preInt1, preInt2);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_pre,sizeof(str_pre),500);
+
+	}
+
+	void f_ACCELEROMETER()
+	{
+		// ACCELEROMETER
+
+		BSP_ACCELERO_AccGetXYZ(pDataXYZ);
+		snprintf(str_acc1,100," X-axis = %d      ", pDataXYZ[0]);
+		snprintf(str_acc2,100," Y-axis = %d      ", pDataXYZ[1]);
+		snprintf(str_acc3,100," Z-axis = %d \r", pDataXYZ[2]);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),500);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc2,sizeof(str_acc2),500);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc3,sizeof(str_acc2),500);
+	}
+	void f_Menu()
+	{
+		HAL_UART_Transmit(&huart1,msg3,sizeof(msg3),1000);
+		s_case=0;
+	}
+	void f_Invalid()
+	{
+		HAL_UART_Transmit(&huart1,(uint8_t*)Invalid,strlen(Invalid),500);
+		s_case=0;
+	}
+
 
   /* USER CODE END 1 */
 
@@ -176,49 +234,6 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	  	// Temperature
-
-		temp_value = BSP_TSENSOR_ReadTemp();
-		int tmpInt1 = temp_value;
-		float tmpFrac = temp_value - tmpInt1;
-		int tmpInt2 = trunc(tmpFrac * 100);
-		snprintf(str_tmp,100," TEMPERATURE = %d.%02d \n\r", tmpInt1, tmpInt2);
-		//HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),1000);
-		//HAL_Delay(3000);
-
-		// Humidity
-
-		humi_value = BSP_HSENSOR_ReadHumidity();
-		int humiInt1 = humi_value;
-		float humiFrac = humi_value - humiInt1;
-		int humiInt2 = trunc(humiFrac * 100);
-		snprintf(str_humi,100," HUMIDITY = %d.%02d \n\r", humiInt1, humiInt2);
-		//HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),1000);
-		//HAL_Delay(500);
-
-
-		//	Pressure
-
-		pre_value = BSP_PSENSOR_ReadPressure();
-		int preInt1 = pre_value;
-		float preFrac = pre_value - preInt1;
-		int preInt2 = trunc(preFrac * 100);
-		snprintf(str_pre,100," PRESSURE = %d.%02d \n\r", preInt1, preInt2);
-		//HAL_UART_Transmit(&huart1,( uint8_t * )str_pre,sizeof(str_pre),500);
-		//HAL_Delay(500);
-
-		// ACCELEROMETER
-
-		BSP_ACCELERO_AccGetXYZ(pDataXYZ);
-		snprintf(str_acc1,100," X-axis = %d      ", pDataXYZ[0]);
-		snprintf(str_acc2,100," Y-axis = %d      ", pDataXYZ[1]);
-		snprintf(str_acc3,100," Z-axis = %d  \n\r", pDataXYZ[2]);
-
-
-
-
-
-
 		if(newMsg)
 		{
 			size = sizeof(rxBuffer);
@@ -246,35 +261,33 @@ int main(void)
 
 			case 49:
 			{
-				HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),500);
-				HAL_Delay(1000);
+				f_Temperature();
 				break;
 			}
 			case 50:
 			{
-				HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),500);
-				HAL_Delay(1000);
+				f_Humidity();
 				break;
 			}
 			case 51:
 			{
-				HAL_UART_Transmit(&huart1,( uint8_t * )str_pre,sizeof(str_pre),500);
-				HAL_Delay(1000);
+				f_Pressure();
 				break;
 			}
 			case 52:
 			{
-				HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),500);
-				HAL_UART_Transmit(&huart1,( uint8_t * )str_acc2,sizeof(str_acc2),500);
-				HAL_UART_Transmit(&huart1,( uint8_t * )str_acc3,sizeof(str_acc2),500);
-				HAL_Delay(1000);
+				f_ACCELEROMETER();
+				break;
+			}
+			case 27:
+			{
+				f_Menu();
 				break;
 			}
 
 			default :
 			{
-				HAL_UART_Transmit(&huart1,(uint8_t*)Invalid,strlen(Invalid),500);
-				HAL_Delay(1000);
+				f_Invalid();
 			}
 		}
 
