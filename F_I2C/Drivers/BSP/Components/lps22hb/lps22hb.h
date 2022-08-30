@@ -65,12 +65,12 @@ extern "C" {
   *        7:0 This read-only register contains the device identifier that, for LPS22HB, is set to B1h.
   */
 
-#define LPS22HB_WHO_AM_I_REG         (uint8_t)0x0F
+#define LPS22HB_WHO_AM_I_REG        (uint8_t)0x0F		//for checking I2c sensor data
 
 /**
   * @brief Device Identification value.
   */
-#define LPS22HB_WHO_AM_I_VAL         (uint8_t)0xB1
+#define LPS22HB_WHO_AM_I_VAL        (uint8_t)0xB1     //for checking I2c sensor data
 
 /**
   * @brief Reference Pressure  Register(LSB data)

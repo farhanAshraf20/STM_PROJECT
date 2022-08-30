@@ -88,7 +88,7 @@ main-build: F_I2C.elf secondary-outputs
 
 # Tool invocations
 F_I2C.elf: $(OBJS) $(USER_OBJS) C:\Ashraf_MCU\F_I2C\STM32L475VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "F_I2C.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Ashraf_MCU\F_I2C\STM32L475VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="F_I2C.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "F_I2C.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Ashraf_MCU\F_I2C\STM32L475VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="F_I2C.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -57,12 +57,12 @@ extern "C" {
   *        Default value: 0xBC
   *        7:0 This read-only register contains the device identifier for HTS221.
   */
-#define HTS221_WHO_AM_I_REG          (uint8_t)0x0F
+#define HTS221_WHO_AM_I_REG         (uint8_t)0x0F	//for I2C testing change the value
 
 /**
   * @brief Device Identification value.
   */
-#define HTS221_WHO_AM_I_VAL         (uint8_t)0xBC
+#define HTS221_WHO_AM_I_VAL        (uint8_t)0xBC  //for I2C testing change the value
 
 
 /**

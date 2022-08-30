@@ -190,14 +190,14 @@ typedef enum
 /* LPS22HB (Pressure) I2C Address */
 #define LPS22HB_I2C_ADDRESS  (uint8_t)0xBA
 /* HTS221 (Humidity) I2C Address */
-#define HTS221_I2C_ADDRESS   (uint8_t)0xBE
+#define HTS221_I2C_ADDRESS  (uint8_t)0xBE
 
 #ifdef USE_LPS22HB_TEMP
 /* LPS22HB Sensor hardware I2C address */ 
 #define TSENSOR_I2C_ADDRESS     LPS22HB_I2C_ADDRESS
 #else /* USE_HTS221_TEMP */
 /* HTS221 Sensor hardware I2C address */ 
-#define TSENSOR_I2C_ADDRESS     HTS221_I2C_ADDRESS
+#define TSENSOR_I2C_ADDRESS     HTS221_I2C_ADDRESS //(uint8_t)0xAA
 #endif
 
 /* NFC I2C address and specific config parameters */

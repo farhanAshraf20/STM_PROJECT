@@ -46,8 +46,14 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 
-#define BUFFERDATA 2
-#define BUFFERRX 50
+#define f_One	 	49
+#define f_Two	 	50
+#define f_Three	 	51
+#define f_Four	 	52
+#define f_escape 	27
+
+#define BUFFERDATA 	2
+#define BUFFERRX 	5
 
 /* USER CODE END PM */
 
@@ -58,14 +64,8 @@ UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-/*char TxBuffer[30]="HELLO UART1 INT..!!\r\n";
-char TxBuffer1[30]="HELLO UART4 INT..!!\r\n";
-*/
-//char rxBuffer[BUFFERRX];
-//char rxBuffer1[BUFFERRX];
 
 int rxBuffer[BUFFERRX];
-
 
 float temp_value 	= 0; 				// Measured temperature value
 float humi_value 	= 0; 				// Measured humidity value
@@ -75,26 +75,18 @@ char str_humi[100] 	= ""; 				// Formatted message to display the HUMIDITY value
 char str_pre[100] 	= ""; 				// Formatted message to display the Pressure value
 
 int16_t pDataXYZ[3] = {0};				//Accelerometer  Data
-
-char str_acc1[100]	={0};				//Accelerometer  x-axis
-char str_acc2[100]	={0};				//Accelerometer  y-axis
-char str_acc3[100]	={0};				//Accelerometer  z-axis
+char str_acc1[100]	= {0};				//Accelerometer  x-axis,y-axis,z-axis
 
 
-
-uint8_t msg1[] = "****** sensors values measurement ******\n\n\r";
+uint8_t msg1[] = "****** sensors values measurement ******\n\r";
 uint8_t msg2[] = "Initialize ALL sensors\r\n";
-uint8_t msg3[] = "Please select the option \r\n 1.TEMPERATURE \r\n 2.HUMIDITY \r\n 3.PRESSURE \r\n 4.ACCELERO \r\n";
+uint8_t msg3[] = "Please select the option \r\n 1.TEMPERATURE \r\n 2.HUMIDITY \r\n 3.PRESSURE \r\n 4.ACCELERO \r\n ***MENU*** \r\nPress Escape + Enter \r\n";
 
 char Invalid[30]="!!..Invalid Input..!!\r\n";
 
 uint8_t s_case = 0;						//Switch case input
 
 uint8_t newMsg = 0 , rxData[BUFFERDATA] , rxIndex=0,size=0;
-
-/*
-uint8_t newMsg1 = 0 , rxData1[BUFFERDATA] , rxIndex1=0,size1=0;
-*/
 
 /* USER CODE END PV */
 
@@ -122,59 +114,107 @@ static void MX_I2C2_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	void f_Temperature()
-	{
-		// Temperature
-		temp_value = BSP_TSENSOR_ReadTemp();
-		int tmpInt1 = temp_value;
-		float tmpFrac = temp_value - tmpInt1;
-		int tmpInt2 = trunc(tmpFrac * 100);
-		snprintf(str_tmp,100," TEMPERATURE = %d.%02d \r", tmpInt1, tmpInt2);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),500);
-		memset(str_tmp, 0, sizeof(str_tmp));
-	}
-	void f_Humidity()
-	{
-		// Humidity
-		humi_value = BSP_HSENSOR_ReadHumidity();
-		int humiInt1 = humi_value;
-		float humiFrac = humi_value - humiInt1;
-		int humiInt2 = trunc(humiFrac * 100);
-		snprintf(str_humi,100," HUMIDITY = %d.%02d \r", humiInt1, humiInt2);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),500);
-	}
 
-	void f_Pressure()
+	/*This function use for extracting Temperature data */
+	void f_Temperature(void)
 	{
-		//	Pressure
-
-		pre_value = BSP_PSENSOR_ReadPressure();
-		int preInt1 = pre_value;
-		float preFrac = pre_value - preInt1;
-		int preInt2 = trunc(preFrac * 100);
-		snprintf(str_pre,100," PRESSURE = %d.%02d \r", preInt1, preInt2);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_pre,sizeof(str_pre),500);
+		if(BSP_TSENSOR_Init())
+		{
+			snprintf(str_tmp,100,"Not Taking TEMPERATURE Data\r");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),500);
+			memset(str_tmp, 0, sizeof(str_tmp));
+		}
+		else
+		{
+			temp_value = BSP_TSENSOR_ReadTemp();
+			snprintf(str_tmp,100," TEMPERATURE = %.2f \r", temp_value);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),500);
+			memset(str_tmp, 0, sizeof(str_tmp));
+		}
 
 	}
 
-	void f_ACCELEROMETER()
+	/*This function use for extracting Humidity data */
+	void f_Humidity(void)
 	{
-		// ACCELEROMETER
-
-		BSP_ACCELERO_AccGetXYZ(pDataXYZ);
-		snprintf(str_acc1,100," X-axis = %d      ", pDataXYZ[0]);
-		snprintf(str_acc2,100," Y-axis = %d      ", pDataXYZ[1]);
-		snprintf(str_acc3,100," Z-axis = %d \r", pDataXYZ[2]);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),500);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc2,sizeof(str_acc2),500);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc3,sizeof(str_acc2),500);
+		if(BSP_HSENSOR_Init())
+		{
+			snprintf(str_humi,100,"Not Taking HUMIDITY Data \r");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),500);
+			memset(str_humi, 0, sizeof(str_humi));
+		}
+		else
+		{
+			humi_value = BSP_HSENSOR_ReadHumidity();
+			snprintf(str_humi,100," HUMIDITY = %.2f \r", humi_value);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),500);
+			memset(str_humi, 0, sizeof(str_humi));
+		}
 	}
-	void f_Menu()
+
+	/*This function use for extracting Pressure data */
+	void f_Pressure(void)
 	{
-		HAL_UART_Transmit(&huart1,msg3,sizeof(msg3),1000);
+
+		if(BSP_PSENSOR_Init())
+		{
+			snprintf(str_pre,100," Not Taking PRESSURE Data \r");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_pre,sizeof(str_pre),500);
+			memset(str_pre, 0, sizeof(str_pre));
+		}
+		else
+		{
+			pre_value = BSP_PSENSOR_ReadPressure();
+			snprintf(str_pre,100," PRESSURE = %.2f \r", pre_value);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_pre,sizeof(str_pre),500);
+			memset(str_pre, 0, sizeof(str_pre));
+		}
+
+
+	}
+
+	/*This function use for extracting ACCELEROMETER data */
+	void f_ACCELEROMETER(void)
+	{
+		if(BSP_ACCELERO_Init())
+		{
+			BSP_ACCELERO_AccGetXYZ(pDataXYZ);
+			snprintf(str_acc1,100," X-axis Error");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),500);
+			memset(str_acc1, 0, sizeof(str_acc1));
+			snprintf(str_acc1,100," Y-axis Error");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),500);
+			memset(str_acc1, 0, sizeof(str_acc1));
+			snprintf(str_acc1,100," Z-axis Error \r");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),500);
+			memset(str_acc1, 0, sizeof(str_acc1));
+		}
+		else
+		{
+			BSP_ACCELERO_AccGetXYZ(pDataXYZ);
+			snprintf(str_acc1,100," X-axis = %d      ", pDataXYZ[0]);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),500);
+			memset(str_acc1, 0, sizeof(str_acc1));
+			snprintf(str_acc1,100," Y-axis = %d      ", pDataXYZ[1]);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),500);
+			memset(str_acc1, 0, sizeof(str_acc1));
+			snprintf(str_acc1,100," Z-axis = %d \r", pDataXYZ[2]);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),500);
+			memset(str_acc1, 0, sizeof(str_acc1));
+		}
+
+
+	}
+
+	/*This function use for Printing MENU */
+	void f_Menu(void)
+	{
+		HAL_UART_Transmit(&huart1,msg3,sizeof(msg3),500);
 		s_case=0;
 	}
-	void f_Invalid()
+
+	/*This function use for Printing Invalid */
+	void f_Invalid(void)
 	{
 		HAL_UART_Transmit(&huart1,(uint8_t*)Invalid,strlen(Invalid),500);
 		s_case=0;
@@ -234,6 +274,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
+	  /*  This if condition is use for UART1 (Interrupt based) */
 		if(newMsg)
 		{
 			size = sizeof(rxBuffer);
@@ -242,16 +283,13 @@ int main(void)
 			rxBuffer[size+1]='\n';
 			s_case= rxBuffer[0];
 
-			for(int i=0;i< BUFFERRX ;i++)
-			{
-				rxBuffer[i]=0;
-			}
+			memset(rxBuffer, 0, sizeof(rxBuffer));
 
 			newMsg=0;
 		}
 
-		//printf("switch case value : %d \n",s_case);
 
+		/* This switch case is using for calling Sensor functions */
 		switch(s_case)
 		{
 			case 0:
@@ -259,27 +297,27 @@ int main(void)
 				break;
 			}
 
-			case 49:
+			case f_One:
 			{
 				f_Temperature();
 				break;
 			}
-			case 50:
+			case f_Two:
 			{
 				f_Humidity();
 				break;
 			}
-			case 51:
+			case f_Three:
 			{
 				f_Pressure();
 				break;
 			}
-			case 52:
+			case f_Four:
 			{
 				f_ACCELEROMETER();
 				break;
 			}
-			case 27:
+			case f_escape:
 			{
 				f_Menu();
 				break;
@@ -290,27 +328,6 @@ int main(void)
 				f_Invalid();
 			}
 		}
-
-	/*
-		if(newMsg1)
-		{
-			size1 =strlen(rxBuffer1);
-			//printf("Size of size1 : %d\n",size1);
-			rxBuffer1[size1]='\r';
-			rxBuffer1[size1 + 1]='\n';
-
-
-			HAL_UART_Transmit(&huart1,(uint8_t*)rxBuffer1,(size1 + 3),500);
-
-
-			for(int i=0;i< BUFFERRX ;i++)
-			{
-				rxBuffer1[i]=0;
-			}
-
-			newMsg1=0;
-		}
-	 */
 
   }
   /* USER CODE END 3 */
@@ -726,22 +743,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
         HAL_UART_Receive_IT(&huart1 ,rxData,1);
     }
 
-    /*
-		if(huart -> Instance == UART4)
-			{
-				if(rxData1[0]!='\r')
-				{
-					rxBuffer1[rxIndex1]=rxData1[0];
-					rxIndex1++;
-				}
-				else
-				{
-					newMsg1=1;
-					rxIndex1=0;
-				}
-				HAL_UART_Receive_IT(&huart4 ,rxData1,1);
-			}
-     */
 }
 /* USER CODE END 4 */
 
