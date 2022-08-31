@@ -51,6 +51,8 @@
 #define f_Three	 	51
 #define f_Four	 	52
 #define f_escape 	27
+#define f_error     53
+#define f_size		1
 
 #define BUFFERDATA 	2
 #define BUFFERRX 	5
@@ -65,7 +67,7 @@ UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 
-int rxBuffer[BUFFERRX];
+char rxBuffer[BUFFERRX];
 
 float temp_value 	= 0; 				// Measured temperature value
 float humi_value 	= 0; 				// Measured humidity value
@@ -75,14 +77,14 @@ char str_humi[100] 	= ""; 				// Formatted message to display the HUMIDITY value
 char str_pre[100] 	= ""; 				// Formatted message to display the Pressure value
 
 int16_t pDataXYZ[3] = {0};				//Accelerometer  Data
-char str_acc1[100]	= {0};				//Accelerometer  x-axis,y-axis,z-axis
+char  str_acc1[100]	= {0};				//Accelerometer  x-axis,y-axis,z-axis
 
 
-uint8_t msg1[] = "****** sensors values measurement ******\n\r";
+uint8_t msg1[] = "\033\143 ****** sensors values measurement ******\n\r";
 uint8_t msg2[] = "Initialize ALL sensors\r\n";
-uint8_t msg3[] = "Please select the option \r\n 1.TEMPERATURE \r\n 2.HUMIDITY \r\n 3.PRESSURE \r\n 4.ACCELERO \r\n ***MENU*** \r\nPress Escape + Enter \r\n";
+uint8_t msg3[] = "\033\143 Please select the option \r\n 1.TEMPERATURE \r\n 2.HUMIDITY \r\n 3.PRESSURE \r\n 4.ACCELERO \r\n ***MENU*** \r\nPress Escape + Enter \r\n";
 
-char Invalid[30]="!!..Invalid Input..!!\r\n";
+char Invalid[30]="\033\143!!..Invalid Input..!!\r\n";
 
 uint8_t s_case = 0;						//Switch case input
 
@@ -109,16 +111,17 @@ void f_Temperature(void)
 	if(BSP_TSENSOR_Init())
 	{
 		snprintf(str_tmp,100,"\033\143 Not Taking TEMPERATURE Data\r");
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),500);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),10);
 		memset(str_tmp, 0, sizeof(str_tmp));
 	}
 	else
 	{
 		temp_value = BSP_TSENSOR_ReadTemp();
-		HAL_Delay(1000);
+
 		snprintf(str_tmp,100," \033\143 TEMPERATURE = %.2f \r", temp_value);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),500);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),10);
 		memset(str_tmp, 0, sizeof(str_tmp));
+		HAL_Delay(1000);
 	}
 
 }
@@ -129,16 +132,17 @@ void f_Humidity(void)
 	if(BSP_HSENSOR_Init())
 	{
 		snprintf(str_humi,100,"\033\143 Not Taking HUMIDITY Data \r");
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),500);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),10);
 		memset(str_humi, 0, sizeof(str_humi));
 	}
 	else
 	{
 		humi_value = BSP_HSENSOR_ReadHumidity();
-		HAL_Delay(1000);
+
 		snprintf(str_humi,100,"\033\143 HUMIDITY = %.2f \r", humi_value);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),500);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),10);
 		memset(str_humi, 0, sizeof(str_humi));
+		HAL_Delay(1000);
 	}
 }
 
@@ -155,10 +159,11 @@ void f_Pressure(void)
 	else
 	{
 		pre_value = BSP_PSENSOR_ReadPressure();
-		HAL_Delay(1000);
+
 		snprintf(str_pre,100,"\033\143 PRESSURE = %.2f \r", pre_value);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_pre,sizeof(str_pre),500);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_pre,sizeof(str_pre),10);
 		memset(str_pre, 0, sizeof(str_pre));
+		HAL_Delay(1000);
 	}
 
 
@@ -170,30 +175,32 @@ void f_ACCELEROMETER(void)
 	if(BSP_ACCELERO_Init())
 	{
 		BSP_ACCELERO_AccGetXYZ(pDataXYZ);
-		HAL_Delay(1000);
+
 		snprintf(str_acc1,100,"\033\143 X-axis Error");
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),500);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 		memset(str_acc1, 0, sizeof(str_acc1));
 		snprintf(str_acc1,100," Y-axis Error");
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),500);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 		memset(str_acc1, 0, sizeof(str_acc1));
 		snprintf(str_acc1,100," Z-axis Error \r");
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),500);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 		memset(str_acc1, 0, sizeof(str_acc1));
+		HAL_Delay(1000);
 	}
 	else
 	{
 		BSP_ACCELERO_AccGetXYZ(pDataXYZ);
-		HAL_Delay(1000);
+
 		snprintf(str_acc1,100,"\033\143 X-axis = %d      ", pDataXYZ[0]);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),500);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 		memset(str_acc1, 0, sizeof(str_acc1));
 		snprintf(str_acc1,100," Y-axis = %d      ", pDataXYZ[1]);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),500);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 		memset(str_acc1, 0, sizeof(str_acc1));
 		snprintf(str_acc1,100," Z-axis = %d \r", pDataXYZ[2]);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),500);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 		memset(str_acc1, 0, sizeof(str_acc1));
+		HAL_Delay(1000);
 	}
 
 
@@ -283,11 +290,20 @@ int main(void)
 	  /*  This if condition is use for UART1 (Interrupt based) */
 		if(newMsg)
 		{
-			size = sizeof(rxBuffer);
 
-			rxBuffer[size]='\r';
-			rxBuffer[size+1]='\n';
-			s_case= rxBuffer[0];
+			size = strlen(rxBuffer);
+			//printf("size of RX buffer :%d\n",size);
+
+			if(size == f_size)
+			{
+				s_case= rxBuffer[0];
+			}
+			else
+			{
+				s_case = f_error;
+
+			}
+
 
 			memset(rxBuffer, 0, sizeof(rxBuffer));
 
