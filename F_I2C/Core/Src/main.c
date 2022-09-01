@@ -54,20 +54,23 @@
 #define f_error     53
 #define f_size		1
 
+#define f_1sec		1000
+
 #define BUFFERDATA 	2
 #define BUFFERRX 	5
 
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-I2C_HandleTypeDef hi2c2;
 
+I2C_HandleTypeDef hi2c2;
+TIM_HandleTypeDef htim16;
 UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 
-char rxBuffer[BUFFERRX];
+
 
 float temp_value 	= 0; 				// Measured temperature value
 float humi_value 	= 0; 				// Measured humidity value
@@ -75,10 +78,9 @@ float pre_value 	= 0;  				// Measured Pressure value
 char str_tmp[100] 	= ""; 				// Formatted message to display the temperature value
 char str_humi[100] 	= ""; 				// Formatted message to display the HUMIDITY value
 char str_pre[100] 	= ""; 				// Formatted message to display the Pressure value
-
-int16_t pDataXYZ[3] = {0};				//Accelerometer  Data
-char  str_acc1[100]	= {0};				//Accelerometer  x-axis,y-axis,z-axis
-
+char rxBuffer[BUFFERRX];				// This buffer is use for storing input data
+char  str_acc1[100]	= {0};				// Accelerometer  x-axis,y-axis,z-axis
+int16_t pDataXYZ[3] = {0};				// Accelerometer  Data
 
 uint8_t msg1[] = "\033\143 ****** sensors values measurement ******\n\r";
 uint8_t msg2[] = "Initialize ALL sensors\r\n";
@@ -93,19 +95,28 @@ uint8_t newMsg = 0 , rxData[BUFFERDATA] , rxIndex=0,size=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
-
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_UART4_Init(void);
 static void MX_I2C2_Init(void);
-
+static void MX_TIM16_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+/*This function use for generating Timer(timer 16) delay  */
+void f_Delay(uint16_t us)
+{
+	__HAL_TIM_SET_COUNTER(&htim16,0);  // set the counter value a 0
+	while (__HAL_TIM_GET_COUNTER(&htim16) <= us);  // wait for the counter to reach the us input in the parameter
+}
+
+
+/*This function use for extracting Temperature data */
 void f_Temperature(void)
 {
 	if(BSP_TSENSOR_Init())
@@ -117,14 +128,14 @@ void f_Temperature(void)
 	else
 	{
 		temp_value = BSP_TSENSOR_ReadTemp();
-
 		snprintf(str_tmp,100," \033\143 TEMPERATURE = %.2f \r", temp_value);
 		HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),10);
 		memset(str_tmp, 0, sizeof(str_tmp));
-		HAL_Delay(1000);
+		f_Delay(f_1sec);
 	}
 
 }
+
 
 /*This function use for extracting Humidity data */
 void f_Humidity(void)
@@ -138,13 +149,13 @@ void f_Humidity(void)
 	else
 	{
 		humi_value = BSP_HSENSOR_ReadHumidity();
-
 		snprintf(str_humi,100,"\033\143 HUMIDITY = %.2f \r", humi_value);
 		HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),10);
 		memset(str_humi, 0, sizeof(str_humi));
-		HAL_Delay(1000);
+		f_Delay(f_1sec);
 	}
 }
+
 
 /*This function use for extracting Pressure data */
 void f_Pressure(void)
@@ -159,15 +170,14 @@ void f_Pressure(void)
 	else
 	{
 		pre_value = BSP_PSENSOR_ReadPressure();
-
 		snprintf(str_pre,100,"\033\143 PRESSURE = %.2f \r", pre_value);
 		HAL_UART_Transmit(&huart1,( uint8_t * )str_pre,sizeof(str_pre),10);
 		memset(str_pre, 0, sizeof(str_pre));
-		HAL_Delay(1000);
+		f_Delay(f_1sec);
 	}
 
-
 }
+
 
 /*This function use for extracting ACCELEROMETER data */
 void f_ACCELEROMETER(void)
@@ -185,7 +195,6 @@ void f_ACCELEROMETER(void)
 		snprintf(str_acc1,100," Z-axis Error \r");
 		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 		memset(str_acc1, 0, sizeof(str_acc1));
-		HAL_Delay(1000);
 	}
 	else
 	{
@@ -200,9 +209,8 @@ void f_ACCELEROMETER(void)
 		snprintf(str_acc1,100," Z-axis = %d \r", pDataXYZ[2]);
 		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 		memset(str_acc1, 0, sizeof(str_acc1));
-		HAL_Delay(1000);
+		f_Delay(f_1sec);
 	}
-
 
 }
 
@@ -239,29 +247,28 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-
-	HAL_Init();
+  HAL_Init();
 
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
 
   /* Configure the system clock */
-
-	SystemClock_Config();
+  SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
 
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-
 	MX_GPIO_Init();
 	MX_USART1_UART_Init();
 	MX_UART4_Init();
 	MX_I2C2_Init();
-
+	MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
+	// Start timer
+	HAL_TIM_Base_Start(&htim16);
 
 	BSP_TSENSOR_Init();
 	BSP_HSENSOR_Init();
@@ -274,8 +281,6 @@ int main(void)
 
 	HAL_UART_Receive_IT(&huart1,rxData,1);
 
-
-	//HAL_UART_Receive_IT(&huart4,rxData1,1);
 
   /* USER CODE END 2 */
 
@@ -292,7 +297,6 @@ int main(void)
 		{
 
 			size = strlen(rxBuffer);
-			//printf("size of RX buffer :%d\n",size);
 
 			if(size == f_size)
 			{
@@ -301,9 +305,7 @@ int main(void)
 			else
 			{
 				s_case = f_error;
-
 			}
-
 
 			memset(rxBuffer, 0, sizeof(rxBuffer));
 
@@ -446,6 +448,38 @@ static void MX_I2C2_Init(void)
   /* USER CODE BEGIN I2C2_Init 2 */
 
   /* USER CODE END I2C2_Init 2 */
+
+}
+
+/**
+  * @brief TIM16 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM16_Init(void)
+{
+
+  /* USER CODE BEGIN TIM16_Init 0 */
+
+  /* USER CODE END TIM16_Init 0 */
+
+  /* USER CODE BEGIN TIM16_Init 1 */
+
+  /* USER CODE END TIM16_Init 1 */
+  htim16.Instance = TIM16;
+  htim16.Init.Prescaler = 8000-1;
+  htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim16.Init.Period = 65535;
+  htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim16.Init.RepetitionCounter = 0;
+  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM16_Init 2 */
+
+  /* USER CODE END TIM16_Init 2 */
 
 }
 
