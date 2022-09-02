@@ -54,9 +54,6 @@
 #define f_error     53
 #define f_size		1
 
-#define f_1sec		10000
-#define f_2sec		20000
-
 #define BUFFERDATA 	2
 #define BUFFERRX 	5
 
@@ -90,7 +87,7 @@ uint8_t msg3[] = "\033\143 Please select the option \r\n 1.TEMPERATURE \r\n 2.HU
 
 char Invalid[30]="\033\143!!..Invalid Input..!!\r\n";
 
-uint8_t flag=0;							//checking the timer callback and toggle flag (0/1)
+uint8_t flag=1;							//checking the timer callback and toggle flag (0/1)
 uint8_t s_case = 0;						//Switch case input
 
 uint8_t newMsg = 0 , rxData[BUFFERDATA] , rxIndex=0,size=0;
@@ -114,8 +111,8 @@ static void MX_TIM16_Init(void);
 /*This function use for extracting Temperature data */
 void f_Temperature(void)
 {
-	printf("Flag state  :%d\n",flag);
-	if(flag!=0)
+	//printf("Flag state  :%d\n",flag);
+	if(flag)
 	{
 
 		if(BSP_TSENSOR_Init())
@@ -130,7 +127,10 @@ void f_Temperature(void)
 			snprintf(str_tmp,100," \033\143 TEMPERATURE = %.2f \r", temp_value);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),10);
 			memset(str_tmp, 0, sizeof(str_tmp));
+			flag=0;
 		}
+
+
 	}
 
 }
@@ -139,7 +139,7 @@ void f_Temperature(void)
 /*This function use for extracting Humidity data */
 void f_Humidity(void)
 {
-	if(flag!=0)
+	if(flag)
 	{
 		if(BSP_HSENSOR_Init())
 		{
@@ -153,7 +153,9 @@ void f_Humidity(void)
 			snprintf(str_humi,100,"\033\143 HUMIDITY = %.2f \r", humi_value);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),10);
 			memset(str_humi, 0, sizeof(str_humi));
+			flag=0;
 		}
+
 	}
 }
 
@@ -161,7 +163,7 @@ void f_Humidity(void)
 /*This function use for extracting Pressure data */
 void f_Pressure(void)
 {
-	if(flag!=0)
+	if(flag)
 	{
 		if(BSP_PSENSOR_Init())
 		{
@@ -175,7 +177,9 @@ void f_Pressure(void)
 			snprintf(str_pre,100,"\033\143 PRESSURE = %.2f \r", pre_value);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_pre,sizeof(str_pre),10);
 			memset(str_pre, 0, sizeof(str_pre));
+			flag=0;
 		}
+
 	}
 
 }
@@ -184,7 +188,7 @@ void f_Pressure(void)
 /*This function use for extracting ACCELEROMETER data */
 void f_ACCELEROMETER(void)
 {
-	if(flag!=0)
+	if(flag)
 	{
 		if(BSP_ACCELERO_Init())
 		{
@@ -213,7 +217,9 @@ void f_ACCELEROMETER(void)
 			snprintf(str_acc1,100," Z-axis = %d \r", pDataXYZ[2]);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
+			flag=0;
 		}
+
 	}
 
 }
@@ -227,12 +233,16 @@ int f_Menu(void)
 }
 
 /*This function use for Printing Invalid */
-int f_Invalid(void)
+void f_Invalid(void)
 {
 	HAL_UART_Transmit(&huart1,(uint8_t*)Invalid,strlen(Invalid),10);
 	s_case=0;
-	if(flag!=0){}
-	return f_Menu();
+	if(flag)
+	{
+		f_Menu();
+		flag=0;
+	}
+
 }
 
 
@@ -813,10 +823,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 /*This Callback function use for generating Timer(timer 16) delay  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  // Check the timer triggered this callback and toggle flag state (0/1)
+  // Check the timer triggered this callback
   if (htim == &htim16 )
   {
-	  flag = flag == 0 ? 1 : 0;
+	  flag = 1;
   }
 }
 
