@@ -128,12 +128,7 @@ int main(void)
 
 			HAL_UART_Transmit(&huart4,(uint8_t*)rxBuffer,(size + 3),500);
 
-
-			for(int i=0;i< BUFFERRX ;i++)
-			{
-				rxBuffer[i]=0;
-			}
-
+			memset(rxBuffer,0,(size + 3));
 			newMsg=0;
 		}
 
@@ -147,12 +142,7 @@ int main(void)
 
 			HAL_UART_Transmit(&huart1,(uint8_t*)rxBuffer1,(size1 + 3),500);
 
-
-			for(int i=0;i< BUFFERRX ;i++)
-			{
-				rxBuffer1[i]=0;
-			}
-
+			memset(rxBuffer1,0,(size1 + 3));
 			newMsg1=0;
 		}
 
