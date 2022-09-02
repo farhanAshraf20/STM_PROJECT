@@ -54,7 +54,8 @@
 #define f_error     53
 #define f_size		1
 
-#define f_1sec		1000
+#define f_1sec		10000
+#define f_2sec		20000
 
 #define BUFFERDATA 	2
 #define BUFFERRX 	5
@@ -62,9 +63,10 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-
 I2C_HandleTypeDef hi2c2;
+
 TIM_HandleTypeDef htim16;
+
 UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart1;
 
@@ -88,6 +90,7 @@ uint8_t msg3[] = "\033\143 Please select the option \r\n 1.TEMPERATURE \r\n 2.HU
 
 char Invalid[30]="\033\143!!..Invalid Input..!!\r\n";
 
+uint8_t flag=0;							//checking the timer callback and toggle flag (0/1)
 uint8_t s_case = 0;						//Switch case input
 
 uint8_t newMsg = 0 , rxData[BUFFERDATA] , rxIndex=0,size=0;
@@ -108,30 +111,26 @@ static void MX_TIM16_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-/*This function use for generating Timer(timer 16) delay  */
-void f_Delay(uint16_t us)
-{
-	__HAL_TIM_SET_COUNTER(&htim16,0);  // set the counter value a 0
-	while (__HAL_TIM_GET_COUNTER(&htim16) <= us);  // wait for the counter to reach the us input in the parameter
-}
-
-
 /*This function use for extracting Temperature data */
 void f_Temperature(void)
 {
-	if(BSP_TSENSOR_Init())
+	printf("Flag state  :%d\n",flag);
+	if(flag!=0)
 	{
-		snprintf(str_tmp,100,"\033\143 Not Taking TEMPERATURE Data\r");
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),10);
-		memset(str_tmp, 0, sizeof(str_tmp));
-	}
-	else
-	{
-		temp_value = BSP_TSENSOR_ReadTemp();
-		snprintf(str_tmp,100," \033\143 TEMPERATURE = %.2f \r", temp_value);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),10);
-		memset(str_tmp, 0, sizeof(str_tmp));
-		f_Delay(f_1sec);
+
+		if(BSP_TSENSOR_Init())
+		{
+			snprintf(str_tmp,100,"\033\143 Not Taking TEMPERATURE Data\r");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),10);
+			memset(str_tmp, 0, sizeof(str_tmp));
+		}
+		else
+		{
+			temp_value = BSP_TSENSOR_ReadTemp();
+			snprintf(str_tmp,100," \033\143 TEMPERATURE = %.2f \r", temp_value);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),10);
+			memset(str_tmp, 0, sizeof(str_tmp));
+		}
 	}
 
 }
@@ -140,19 +139,21 @@ void f_Temperature(void)
 /*This function use for extracting Humidity data */
 void f_Humidity(void)
 {
-	if(BSP_HSENSOR_Init())
+	if(flag!=0)
 	{
-		snprintf(str_humi,100,"\033\143 Not Taking HUMIDITY Data \r");
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),10);
-		memset(str_humi, 0, sizeof(str_humi));
-	}
-	else
-	{
-		humi_value = BSP_HSENSOR_ReadHumidity();
-		snprintf(str_humi,100,"\033\143 HUMIDITY = %.2f \r", humi_value);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),10);
-		memset(str_humi, 0, sizeof(str_humi));
-		f_Delay(f_1sec);
+		if(BSP_HSENSOR_Init())
+		{
+			snprintf(str_humi,100,"\033\143 Not Taking HUMIDITY Data \r");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),10);
+			memset(str_humi, 0, sizeof(str_humi));
+		}
+		else
+		{
+			humi_value = BSP_HSENSOR_ReadHumidity();
+			snprintf(str_humi,100,"\033\143 HUMIDITY = %.2f \r", humi_value);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),10);
+			memset(str_humi, 0, sizeof(str_humi));
+		}
 	}
 }
 
@@ -160,20 +161,21 @@ void f_Humidity(void)
 /*This function use for extracting Pressure data */
 void f_Pressure(void)
 {
-
-	if(BSP_PSENSOR_Init())
+	if(flag!=0)
 	{
-		snprintf(str_pre,100,"\033\143 Not Taking PRESSURE Data \r");
-		HAL_UART_Transmit_IT(&huart1,( uint8_t * )str_pre,sizeof(str_pre));
-		memset(str_pre, 0, sizeof(str_pre));
-	}
-	else
-	{
-		pre_value = BSP_PSENSOR_ReadPressure();
-		snprintf(str_pre,100,"\033\143 PRESSURE = %.2f \r", pre_value);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_pre,sizeof(str_pre),10);
-		memset(str_pre, 0, sizeof(str_pre));
-		f_Delay(f_1sec);
+		if(BSP_PSENSOR_Init())
+		{
+			snprintf(str_pre,100,"\033\143 Not Taking PRESSURE Data \r");
+			HAL_UART_Transmit_IT(&huart1,( uint8_t * )str_pre,sizeof(str_pre));
+			memset(str_pre, 0, sizeof(str_pre));
+		}
+		else
+		{
+			pre_value = BSP_PSENSOR_ReadPressure();
+			snprintf(str_pre,100,"\033\143 PRESSURE = %.2f \r", pre_value);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_pre,sizeof(str_pre),10);
+			memset(str_pre, 0, sizeof(str_pre));
+		}
 	}
 
 }
@@ -182,50 +184,55 @@ void f_Pressure(void)
 /*This function use for extracting ACCELEROMETER data */
 void f_ACCELEROMETER(void)
 {
-	if(BSP_ACCELERO_Init())
+	if(flag!=0)
 	{
-		BSP_ACCELERO_AccGetXYZ(pDataXYZ);
+		if(BSP_ACCELERO_Init())
+		{
+			BSP_ACCELERO_AccGetXYZ(pDataXYZ);
 
-		snprintf(str_acc1,100,"\033\143 X-axis Error");
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
-		memset(str_acc1, 0, sizeof(str_acc1));
-		snprintf(str_acc1,100," Y-axis Error");
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
-		memset(str_acc1, 0, sizeof(str_acc1));
-		snprintf(str_acc1,100," Z-axis Error \r");
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
-		memset(str_acc1, 0, sizeof(str_acc1));
-	}
-	else
-	{
-		BSP_ACCELERO_AccGetXYZ(pDataXYZ);
+			snprintf(str_acc1,100,"\033\143 X-axis Error");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
+			memset(str_acc1, 0, sizeof(str_acc1));
+			snprintf(str_acc1,100," Y-axis Error");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
+			memset(str_acc1, 0, sizeof(str_acc1));
+			snprintf(str_acc1,100," Z-axis Error \r");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
+			memset(str_acc1, 0, sizeof(str_acc1));
+		}
+		else
+		{
+			BSP_ACCELERO_AccGetXYZ(pDataXYZ);
 
-		snprintf(str_acc1,100,"\033\143 X-axis = %d      ", pDataXYZ[0]);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
-		memset(str_acc1, 0, sizeof(str_acc1));
-		snprintf(str_acc1,100," Y-axis = %d      ", pDataXYZ[1]);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
-		memset(str_acc1, 0, sizeof(str_acc1));
-		snprintf(str_acc1,100," Z-axis = %d \r", pDataXYZ[2]);
-		HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
-		memset(str_acc1, 0, sizeof(str_acc1));
-		f_Delay(f_1sec);
+			snprintf(str_acc1,100,"\033\143 X-axis = %d      ", pDataXYZ[0]);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
+			memset(str_acc1, 0, sizeof(str_acc1));
+			snprintf(str_acc1,100," Y-axis = %d      ", pDataXYZ[1]);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
+			memset(str_acc1, 0, sizeof(str_acc1));
+			snprintf(str_acc1,100," Z-axis = %d \r", pDataXYZ[2]);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
+			memset(str_acc1, 0, sizeof(str_acc1));
+		}
 	}
 
 }
 
 /*This function use for Printing MENU */
-void f_Menu(void)
+int f_Menu(void)
 {
-	HAL_UART_Transmit(&huart1,msg3,sizeof(msg3),500);
+	HAL_UART_Transmit(&huart1,msg3,sizeof(msg3),100);
 	s_case=0;
+	return 0;
 }
 
 /*This function use for Printing Invalid */
-void f_Invalid(void)
+int f_Invalid(void)
 {
-	HAL_UART_Transmit(&huart1,(uint8_t*)Invalid,strlen(Invalid),500);
+	HAL_UART_Transmit(&huart1,(uint8_t*)Invalid,strlen(Invalid),10);
 	s_case=0;
+	if(flag!=0){}
+	return f_Menu();
 }
 
 
@@ -261,14 +268,15 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-	MX_GPIO_Init();
-	MX_USART1_UART_Init();
-	MX_UART4_Init();
-	MX_I2C2_Init();
-	MX_TIM16_Init();
+  MX_GPIO_Init();
+  MX_USART1_UART_Init();
+  MX_UART4_Init();
+  MX_I2C2_Init();
+  MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
+
 	// Start timer
-	HAL_TIM_Base_Start(&htim16);
+	HAL_TIM_Base_Start_IT(&htim16);
 
 	BSP_TSENSOR_Init();
 	BSP_HSENSOR_Init();
@@ -313,6 +321,7 @@ int main(void)
 		}
 
 
+
 		/* This switch case is using for calling Sensor functions */
 		switch(s_case)
 		{
@@ -333,6 +342,7 @@ int main(void)
 			}
 			case f_Three:
 			{
+
 				f_Pressure();
 				break;
 			}
@@ -800,6 +810,16 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     }
 
 }
+/*This Callback function use for generating Timer(timer 16) delay  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  // Check the timer triggered this callback and toggle flag state (0/1)
+  if (htim == &htim16 )
+  {
+	  flag = flag == 0 ? 1 : 0;
+  }
+}
+
 /* USER CODE END 4 */
 
 /**
