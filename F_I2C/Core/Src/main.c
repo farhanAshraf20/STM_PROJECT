@@ -53,6 +53,7 @@
 #define f_escape 	27
 #define f_error     53
 #define f_size		1
+#define f_count		10000
 
 #define BUFFERDATA 	2
 #define BUFFERRX 	5
@@ -87,7 +88,7 @@ uint8_t msg3[] = "\033\143 Please select the option \r\n 1.TEMPERATURE \r\n 2.HU
 
 char Invalid[30]="\033\143!!..Invalid Input..!!\r\n";
 
-uint8_t flag=1;							//checking the timer callback and toggle flag (0/1)
+uint8_t flag=1;							//checking the timer callback
 uint8_t s_case = 0;						//Switch case input
 
 uint8_t newMsg = 0 , rxData[BUFFERDATA] , rxIndex=0,size=0;
@@ -168,7 +169,7 @@ void f_Pressure(void)
 		if(BSP_PSENSOR_Init())
 		{
 			snprintf(str_pre,100,"\033\143 Not Taking PRESSURE Data \r");
-			HAL_UART_Transmit_IT(&huart1,( uint8_t * )str_pre,sizeof(str_pre));
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_pre,sizeof(str_pre),10);
 			memset(str_pre, 0, sizeof(str_pre));
 		}
 		else
@@ -237,11 +238,6 @@ void f_Invalid(void)
 {
 	HAL_UART_Transmit(&huart1,(uint8_t*)Invalid,strlen(Invalid),10);
 	s_case=0;
-	if(flag)
-	{
-		f_Menu();
-		flag=0;
-	}
 
 }
 
@@ -318,6 +314,7 @@ int main(void)
 
 			if(size == f_size)
 			{
+				flag=1;
 				s_case= rxBuffer[0];
 			}
 			else
@@ -326,7 +323,6 @@ int main(void)
 			}
 
 			memset(rxBuffer, 0, sizeof(rxBuffer));
-
 			newMsg=0;
 		}
 
@@ -489,7 +485,7 @@ static void MX_TIM16_Init(void)
   htim16.Instance = TIM16;
   htim16.Init.Prescaler = 8000-1;
   htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim16.Init.Period = 65535;
+  htim16.Init.Period = f_count - 1;
   htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim16.Init.RepetitionCounter = 0;
   htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
