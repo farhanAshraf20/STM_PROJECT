@@ -43,7 +43,11 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_accelero.h \
  c:\ashraf_mcu\f_i2c\drivers\bsp\components\lsm6dsl\lsm6dsl.h \
  c:\ashraf_mcu\f_i2c\drivers\bsp\components\common\accelero.h \
- c:\ashraf_mcu\f_i2c\drivers\bsp\components\common\gyro.h
+ c:\ashraf_mcu\f_i2c\drivers\bsp\components\common\gyro.h \
+ C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_gyro.h \
+ C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_magneto.h \
+ c:\ashraf_mcu\f_i2c\drivers\bsp\components\lis3mdl\lis3mdl.h \
+ c:\ashraf_mcu\f_i2c\drivers\bsp\components\common\magneto.h
 
 ../Core/Inc/main.h:
 
@@ -136,3 +140,11 @@ c:\ashraf_mcu\f_i2c\drivers\bsp\components\lsm6dsl\lsm6dsl.h:
 c:\ashraf_mcu\f_i2c\drivers\bsp\components\common\accelero.h:
 
 c:\ashraf_mcu\f_i2c\drivers\bsp\components\common\gyro.h:
+
+C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_gyro.h:
+
+C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_magneto.h:
+
+c:\ashraf_mcu\f_i2c\drivers\bsp\components\lis3mdl\lis3mdl.h:
+
+c:\ashraf_mcu\f_i2c\drivers\bsp\components\common\magneto.h:

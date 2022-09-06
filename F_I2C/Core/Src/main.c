@@ -30,6 +30,8 @@
 #include "stm32l475e_iot01_hsensor.h"
 #include "stm32l475e_iot01_psensor.h"
 #include "stm32l475e_iot01_accelero.h"
+#include "stm32l475e_iot01_gyro.h"
+#include "stm32l475e_iot01_magneto.h"
 #include <math.h>
 
 /* USER CODE END Includes */
@@ -50,8 +52,10 @@
 #define f_Two	 	50
 #define f_Three	 	51
 #define f_Four	 	52
+#define f_Five		53
+#define f_Six		54
 #define f_escape 	27
-#define f_error     53
+#define f_error     55
 #define f_size		1
 #define f_count		10000
 
@@ -75,16 +79,19 @@ UART_HandleTypeDef huart1;
 float temp_value 	= 0; 				// Measured temperature value
 float humi_value 	= 0; 				// Measured humidity value
 float pre_value 	= 0;  				// Measured Pressure value
+float gyro_value	= 0;				// Measured gyro value
 char str_tmp[100] 	= ""; 				// Formatted message to display the temperature value
 char str_humi[100] 	= ""; 				// Formatted message to display the HUMIDITY value
 char str_pre[100] 	= ""; 				// Formatted message to display the Pressure value
+char str_gyro[100] 	= ""; 				// Formatted message to display the GYRO value
 char rxBuffer[BUFFERRX];				// This buffer is use for storing input data
 char  str_acc1[100]	= {0};				// Accelerometer  x-axis,y-axis,z-axis
 int16_t pDataXYZ[3] = {0};				// Accelerometer  Data
+float pfData[3]		= {0};				// GYRO Data
 
 uint8_t msg1[] = "\033\143 ****** sensors values measurement ******\n\r";
 uint8_t msg2[] = "Initialize ALL sensors\r\n";
-uint8_t msg3[] = "\033\143 Please select the option \r\n 1.TEMPERATURE \r\n 2.HUMIDITY \r\n 3.PRESSURE \r\n 4.ACCELERO \r\n ***MENU*** \r\nPress Escape + Enter \r\n";
+uint8_t msg3[] = "\033\143 Please select the option \r\n 1. TEMPERATURE \r\n 2. HUMIDITY \r\n 3. PRESSURE \r\n 4. ACCELERO \r\n 5. GYRO \r\n 6. MAGNETOMETER \r\n***MENU*** \r\nPress Escape + Enter \r\n";
 
 char Invalid[30]="\033\143!!..Invalid Input..!!\r\n";
 
@@ -225,6 +232,88 @@ void f_ACCELEROMETER(void)
 
 }
 
+/*This function use for extracting GYRO data */
+void f_GYRO(void)
+{
+	if(flag)
+	{
+		if(BSP_GYRO_Init())
+		{
+			BSP_GYRO_GetXYZ(pfData);
+
+			snprintf(str_gyro,100,"\033\143 X-axis Error");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
+			memset(str_gyro, 0, sizeof(str_gyro));
+
+			snprintf(str_gyro,100," Y-axis Error");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
+			memset(str_gyro, 0, sizeof(str_gyro));
+
+			snprintf(str_gyro,100," Z-axis Error \r");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
+			memset(str_gyro, 0, sizeof(str_gyro));
+		}
+		else
+		{
+			BSP_GYRO_GetXYZ(pfData);
+			snprintf(str_gyro,100,"\033\143 X-axis = %.2f      ", pfData[0]);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
+			memset(str_gyro, 0, sizeof(str_gyro));
+
+			snprintf(str_gyro,100," Y-axis = %.2f      ", pfData[1]);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
+			memset(str_gyro, 0, sizeof(str_gyro));
+
+			snprintf(str_gyro,100," Z-axis = %.2f \r", pfData[2]);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
+			memset(str_gyro, 0, sizeof(str_gyro));
+			flag=0;
+		}
+	}
+
+}
+
+
+/*This function use for extracting MAGNETOMETER data */
+void f_MAGNETOMETERR(void)
+{
+	if(flag)
+	{
+		if(BSP_MAGNETO_Init())
+		{
+			BSP_MAGNETO_GetXYZ(pDataXYZ);
+
+			snprintf(str_acc1,100,"\033\143 X-axis Error");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
+			memset(str_acc1, 0, sizeof(str_acc1));
+			snprintf(str_acc1,100," Y-axis Error");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
+			memset(str_acc1, 0, sizeof(str_acc1));
+			snprintf(str_acc1,100," Z-axis Error \r");
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
+			memset(str_acc1, 0, sizeof(str_acc1));
+		}
+		else
+		{
+			BSP_MAGNETO_GetXYZ(pDataXYZ);
+
+			snprintf(str_acc1,100,"\033\143 X-axis = %d      ", pDataXYZ[0]);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
+			memset(str_acc1, 0, sizeof(str_acc1));
+			snprintf(str_acc1,100," Y-axis = %d      ", pDataXYZ[1]);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
+			memset(str_acc1, 0, sizeof(str_acc1));
+			snprintf(str_acc1,100," Z-axis = %d \r", pDataXYZ[2]);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
+			memset(str_acc1, 0, sizeof(str_acc1));
+			flag=0;
+		}
+
+	}
+
+}
+
+
 /*This function use for Printing MENU */
 int f_Menu(void)
 {
@@ -357,11 +446,22 @@ int main(void)
 				f_ACCELEROMETER();
 				break;
 			}
+			case f_Five:
+			{
+				f_GYRO();
+				break;
+			}
+			case f_Six:
+			{
+				f_MAGNETOMETERR();
+				break;
+			}
 			case f_escape:
 			{
 				f_Menu();
 				break;
 			}
+
 
 			default :
 			{
@@ -820,10 +920,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   // Check the timer triggered this callback
-  if (htim == &htim16 )
-  {
-	  flag = 1;
-  }
+	if(htim -> Instance == TIM16)
+	{
+		flag = 1;
+	}
 }
 
 /* USER CODE END 4 */
