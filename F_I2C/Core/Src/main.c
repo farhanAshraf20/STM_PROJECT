@@ -65,6 +65,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+
 I2C_HandleTypeDef hi2c2;
 
 TIM_HandleTypeDef htim16;
@@ -73,8 +74,6 @@ UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
-
-
 
 float temp_value 	= 0; 				// Measured temperature value
 float humi_value 	= 0; 				// Measured humidity value
@@ -91,13 +90,22 @@ float pfData[3]		= {0};				// GYRO Data
 
 uint8_t msg1[] = "\033\143 ****** sensors values measurement ******\n\r";
 uint8_t msg2[] = "Initialize ALL sensors\r\n";
-uint8_t msg3[] = "\033\143 Please select the option \r\n 1. TEMPERATURE \r\n 2. HUMIDITY \r\n 3. PRESSURE \r\n 4. ACCELERO \r\n 5. GYRO \r\n 6. MAGNETOMETER \r\n***MENU*** \r\nPress Escape + Enter \r\n";
+uint8_t msg3[] = "\033\143 Please select the option \r\n 1. TEMPERATURE \r\n 2. HUMIDITY \r\n 3. PRESSURE \r\n 4. ACCELERO \r\n 5. GYRO \r\n 6. MAGNETOMETER \r\n ***MENU*** \r\nPress Escape + Enter \r\n";
 
 char Invalid[30]="\033\143!!..Invalid Input..!!\r\n";
 
-uint8_t flag=1;							//checking the timer callback
-uint8_t s_case = 0;						//Switch case input
+/************checking the timer callback*****************/
 
+uint8_t flag_temp = 1;
+uint8_t flag_humi = 1;
+uint8_t flag_pre  = 1;
+uint8_t flag_acce = 1;
+uint8_t flag_gyro = 1;
+uint8_t flag_mag  = 1;
+
+/*******************************************************/
+
+uint8_t s_case = 0;						//Switch case input
 uint8_t newMsg = 0 , rxData[BUFFERDATA] , rxIndex=0,size=0;
 
 /* USER CODE END PV */
@@ -120,7 +128,7 @@ static void MX_TIM16_Init(void);
 void f_Temperature(void)
 {
 	//printf("Flag state  :%d\n",flag);
-	if(flag)
+	if(flag_temp)
 	{
 
 		if(BSP_TSENSOR_Init())
@@ -135,7 +143,7 @@ void f_Temperature(void)
 			snprintf(str_tmp,100," \033\143 TEMPERATURE = %.2f \r", temp_value);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),10);
 			memset(str_tmp, 0, sizeof(str_tmp));
-			flag=0;
+			flag_temp=0;
 		}
 
 
@@ -147,7 +155,7 @@ void f_Temperature(void)
 /*This function use for extracting Humidity data */
 void f_Humidity(void)
 {
-	if(flag)
+	if(flag_humi)
 	{
 		if(BSP_HSENSOR_Init())
 		{
@@ -161,7 +169,7 @@ void f_Humidity(void)
 			snprintf(str_humi,100,"\033\143 HUMIDITY = %.2f \r", humi_value);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_humi,sizeof(str_humi),10);
 			memset(str_humi, 0, sizeof(str_humi));
-			flag=0;
+			flag_humi=0;
 		}
 
 	}
@@ -171,7 +179,7 @@ void f_Humidity(void)
 /*This function use for extracting Pressure data */
 void f_Pressure(void)
 {
-	if(flag)
+	if(flag_pre)
 	{
 		if(BSP_PSENSOR_Init())
 		{
@@ -185,7 +193,7 @@ void f_Pressure(void)
 			snprintf(str_pre,100,"\033\143 PRESSURE = %.2f \r", pre_value);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_pre,sizeof(str_pre),10);
 			memset(str_pre, 0, sizeof(str_pre));
-			flag=0;
+			flag_pre=0;
 		}
 
 	}
@@ -196,7 +204,7 @@ void f_Pressure(void)
 /*This function use for extracting ACCELEROMETER data */
 void f_ACCELEROMETER(void)
 {
-	if(flag)
+	if(flag_acce)
 	{
 		if(BSP_ACCELERO_Init())
 		{
@@ -225,7 +233,7 @@ void f_ACCELEROMETER(void)
 			snprintf(str_acc1,100," Z-axis = %d \r", pDataXYZ[2]);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
-			flag=0;
+			flag_acce = 0;
 		}
 
 	}
@@ -235,7 +243,7 @@ void f_ACCELEROMETER(void)
 /*This function use for extracting GYRO data */
 void f_GYRO(void)
 {
-	if(flag)
+	if(flag_gyro)
 	{
 		if(BSP_GYRO_Init())
 		{
@@ -267,7 +275,7 @@ void f_GYRO(void)
 			snprintf(str_gyro,100," Z-axis = %.2f \r", pfData[2]);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
 			memset(str_gyro, 0, sizeof(str_gyro));
-			flag=0;
+			flag_gyro = 0;
 		}
 	}
 
@@ -277,7 +285,7 @@ void f_GYRO(void)
 /*This function use for extracting MAGNETOMETER data */
 void f_MAGNETOMETERR(void)
 {
-	if(flag)
+	if(flag_mag)
 	{
 		if(BSP_MAGNETO_Init())
 		{
@@ -306,7 +314,7 @@ void f_MAGNETOMETERR(void)
 			snprintf(str_acc1,100," Z-axis = %d \r", pDataXYZ[2]);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
-			flag=0;
+			flag_mag = 0;
 		}
 
 	}
@@ -377,6 +385,9 @@ int main(void)
 	BSP_HSENSOR_Init();
 	BSP_PSENSOR_Init();
 	BSP_ACCELERO_Init();
+	BSP_GYRO_Init();
+	BSP_MAGNETO_Init();
+
 
 	HAL_UART_Transmit(&huart1,msg1,sizeof(msg1),1000);
 	HAL_UART_Transmit(&huart1,msg2,sizeof(msg2),1000);
@@ -403,7 +414,6 @@ int main(void)
 
 			if(size == f_size)
 			{
-				flag=1;
 				s_case= rxBuffer[0];
 			}
 			else
@@ -922,7 +932,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   // Check the timer triggered this callback
 	if(htim -> Instance == TIM16)
 	{
-		flag = 1;
+		flag_temp = 1;							//checking the timer callback
+		flag_humi = 1;
+		flag_pre  = 1;
+		flag_acce = 1;
+		flag_gyro = 1;
+		flag_mag  = 1;
 	}
 }
 
