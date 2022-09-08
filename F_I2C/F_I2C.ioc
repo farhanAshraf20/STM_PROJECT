@@ -1,5 +1,6 @@
 #MicroXplorer Configuration settings - do not modify
 File.Version=6
+GPIO.groupedBy=Group By Peripherals
 I2C2.IPParameters=Timing
 I2C2.Timing=0x10909CEC
 KeepUserPlacement=false
@@ -274,7 +275,7 @@ PC12.GPIO_Label=INTERNAL_SPI3_MOSI [BT module_SPI_MOSI] [ISM43362_MOSI]
 PC12.Locked=true
 PC12.Signal=SPI3_MOSI
 PC13.GPIOParameters=GPIO_Label,GPIO_ModeDefaultEXTI
-PC13.GPIO_Label=BUTTON_EXTI13 [B2]
+PC13.GPIO_Label=SW_INT
 PC13.GPIO_ModeDefaultEXTI=GPIO_MODE_IT_FALLING
 PC13.Locked=true
 PC13.Signal=GPXTI13

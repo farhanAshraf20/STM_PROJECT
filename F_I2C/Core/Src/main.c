@@ -65,7 +65,6 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-
 I2C_HandleTypeDef hi2c2;
 
 TIM_HandleTypeDef htim16;
@@ -90,24 +89,28 @@ float pfData[3]		= {0};				// GYRO Data
 
 uint8_t msg1[] = "\033\143 ****** sensors values measurement ******\n\r";
 uint8_t msg2[] = "Initialize ALL sensors\r\n";
-uint8_t msg3[] = "\033\143 Please select the option \r\n 1. TEMPERATURE \r\n 2. HUMIDITY \r\n 3. PRESSURE \r\n 4. ACCELERO \r\n 5. GYRO \r\n 6. MAGNETOMETER \r\n ***MENU*** \r\nPress Escape + Enter \r\n";
+uint8_t msg3[] = "\033\143 Please select the option \r\n 1. TEMPERATURE \r\n 2. HUMIDITY \r\n 3. PRESSURE \r\n 4. ACCELERO \r\n 5. GYRO \r\n 6. MAGNETOMETER \r\n ***MENU*** \r\nPress Escape + Enter \r\n\033[A\033[A";
+uint8_t com_up[]= "\033[A";
+uint8_t com_dn[]= "\033[6B";
 
 char Invalid[30]="\033\143!!..Invalid Input..!!\r\n";
 
 /************checking the timer callback*****************/
 
-uint8_t flag_temp = 1;
-uint8_t flag_humi = 1;
-uint8_t flag_pre  = 1;
-uint8_t flag_acce = 1;
-uint8_t flag_gyro = 1;
-uint8_t flag_mag  = 1;
+uint8_t flag_temp  = 1;
+uint8_t flag_humi  = 1;
+uint8_t flag_pre   = 1;
+uint8_t flag_acce  = 1;
+uint8_t flag_gyro  = 1;
+uint8_t flag_mag   = 1;
+uint8_t flag_error = 1;
 
 /*******************************************************/
 
 uint8_t s_case = 0;						//Switch case input
 uint8_t newMsg = 0 , rxData[BUFFERDATA] , rxIndex=0,size=0;
 
+uint8_t f_INT_count =0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -331,11 +334,18 @@ int f_Menu(void)
 }
 
 /*This function use for Printing Invalid */
-void f_Invalid(void)
+int f_Invalid(void)
 {
-	HAL_UART_Transmit(&huart1,(uint8_t*)Invalid,strlen(Invalid),10);
-	s_case=0;
 
+	//s_case=0;
+
+	if(flag_error)
+	{
+		HAL_UART_Transmit_IT(&huart1,(uint8_t*)Invalid,strlen(Invalid));
+		flag_error = 0;
+	}
+
+return 0;
 }
 
 
@@ -415,6 +425,7 @@ int main(void)
 			if(size == f_size)
 			{
 				s_case= rxBuffer[0];
+				printf("%d\n",s_case);
 			}
 			else
 			{
@@ -595,7 +606,7 @@ static void MX_TIM16_Init(void)
   htim16.Instance = TIM16;
   htim16.Init.Prescaler = 8000-1;
   htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim16.Init.Period = f_count - 1;
+  htim16.Init.Period = f_count;
   htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim16.Init.RepetitionCounter = 0;
   htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -733,11 +744,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : BUTTON_EXTI13_Pin */
-  GPIO_InitStruct.Pin = BUTTON_EXTI13_Pin;
+  /*Configure GPIO pin : SW_INT_Pin */
+  GPIO_InitStruct.Pin = SW_INT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(BUTTON_EXTI13_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(SW_INT_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ARD_A5_Pin ARD_A4_Pin ARD_A3_Pin ARD_A2_Pin
                            ARD_A1_Pin ARD_A0_Pin */
@@ -932,12 +943,34 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   // Check the timer triggered this callback
 	if(htim -> Instance == TIM16)
 	{
-		flag_temp = 1;							//checking the timer callback
-		flag_humi = 1;
-		flag_pre  = 1;
-		flag_acce = 1;
-		flag_gyro = 1;
-		flag_mag  = 1;
+		flag_temp  = 1;							//checking the timer callback
+		flag_humi  = 1;
+		flag_pre   = 1;
+		flag_acce  = 1;
+		flag_gyro  = 1;
+		flag_mag   = 1;
+		flag_error = 1;
+	}
+}
+void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin)
+{
+	if(GPIO_Pin == SW_INT_Pin)
+	{
+		f_INT_count++;
+		if(f_INT_count <= 6)
+		{
+			HAL_UART_Transmit(&huart1,com_up,sizeof(com_up),10);
+		}
+		else
+		{
+			HAL_UART_Transmit(&huart1,com_dn,sizeof(com_dn),10);
+			f_INT_count=0;
+		}
+		printf("Button pressed Count : %d\n",f_INT_count);
+	}
+	else{
+		//Do not do anything when else.
+		__NOP();
 	}
 }
 
