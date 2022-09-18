@@ -24,6 +24,8 @@
 /* USER CODE BEGIN Includes */
 #include"stdio.h"
 #include"string.h"
+#include"stdbool.h"
+#include <math.h>
 
 #include "stm32l475e_iot01.h"
 #include "stm32l475e_iot01_tsensor.h"
@@ -32,7 +34,7 @@
 #include "stm32l475e_iot01_accelero.h"
 #include "stm32l475e_iot01_gyro.h"
 #include "stm32l475e_iot01_magneto.h"
-#include <math.h>
+
 
 /* USER CODE END Includes */
 
@@ -56,6 +58,7 @@
 #define f_Six		54
 #define f_escape 	27
 #define f_error     55
+#define f_cursor    56
 #define f_size		1
 #define f_count		10000
 
@@ -68,6 +71,7 @@
 I2C_HandleTypeDef hi2c2;
 
 TIM_HandleTypeDef htim16;
+TIM_HandleTypeDef htim17;
 
 UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart1;
@@ -89,11 +93,25 @@ float pfData[3]		= {0};				// GYRO Data
 
 uint8_t msg1[] = "\033\143 ****** sensors values measurement ******\n\r";
 uint8_t msg2[] = "Initialize ALL sensors\r\n";
-uint8_t msg3[] = "\033\143 Please select the option \r\n 1. TEMPERATURE \r\n 2. HUMIDITY \r\n 3. PRESSURE \r\n 4. ACCELERO \r\n 5. GYRO \r\n 6. MAGNETOMETER \r\n ***MENU*** \r\nPress Escape + Enter \r\n\033[A\033[A";
-uint8_t com_up[]= "\033[A";
-uint8_t com_dn[]= "\033[6B";
+uint8_t msg3[] = "\033\143 Please select the option \r\n 1. TEMPERATURE \r\n 2. HUMIDITY \r\n 3. PRESSURE \r\n 4. ACCELERO \r\n 5. GYRO \r\n 6. MAGNETOMETER \r\n ***MENU*** \r\nPress Escape + Enter\r\033[7A";
+uint8_t com_up[]= "\033[5A";
+uint8_t com_dn[]= "\033[B";
 
 char Invalid[30]="\033\143!!..Invalid Input..!!\r\n";
+
+//************************** Switch *************************************************
+uint16_t f_lastDebounceTime = 0;  					//last time the output pin was toggled
+uint16_t f_debounceDelay = 50;    					//debounce time
+uint16_t f_presstime, f_releasetime; 				//in millis at press and millis at release
+uint16_t f_timediff; 								//The time in between each press and release of the switch
+int f_lastButtonState = 1;   					    //Previous reading from the input Button
+bool f_buttonState = 1; 						    //state of the switch
+bool f_flag1, f_flag2; 								//just two variables
+uint8_t f_tapCounter=0; 							//switch pressed counter
+uint16_t f_reading=0;								//current state of Button
+
+//**************************************************************************************
+
 
 /************checking the timer callback*****************/
 
@@ -110,7 +128,10 @@ uint8_t flag_error = 1;
 uint8_t s_case = 0;						//Switch case input
 uint8_t newMsg = 0 , rxData[BUFFERDATA] , rxIndex=0,size=0;
 
-uint8_t f_INT_count =0;
+uint8_t f_INT_count =1;
+uint8_t f_INT_count1 =0;
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -120,6 +141,7 @@ static void MX_USART1_UART_Init(void);
 static void MX_UART4_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_TIM16_Init(void);
+static void MX_TIM17_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -324,12 +346,154 @@ void f_MAGNETOMETERR(void)
 
 }
 
+//*********************************************
 
+
+void f_cur_mov(void)
+{
+	f_INT_count++;
+
+	if(f_INT_count <= 6)
+	{
+		HAL_UART_Transmit(&huart1,com_dn,sizeof(com_dn),10);
+	}
+	else
+	{
+		HAL_UART_Transmit(&huart1,com_up,sizeof(com_up),10);
+		f_INT_count=1;
+	}
+	//printf("Button pressed Count : %d\n",f_INT_count);
+
+}
+
+void f_cur_sel(void)
+{
+	switch(f_INT_count)
+	{
+		case 1:
+		{
+			s_case = f_One;
+			break;
+		}
+		case 2:
+		{
+			//printf("ACCELERO\n");
+			s_case =  f_Two;
+			break;
+		}
+		case 3:
+		{
+			//printf("ACCELERO\n");
+			s_case = f_Three;
+			break;
+		}
+		case 4:
+		{
+			//printf("ACCELERO\n");
+			s_case = f_Four;
+			break;
+		}
+		case 5:
+		{
+			//printf("GYRO\n");
+			s_case = f_Five;
+			break;
+		}
+		case 6:
+		{
+			s_case = f_Six;
+			//printf("MAGNETOMETER\n");
+			break;
+		}
+
+	}
+}
+
+int f_Switch(void)
+{
+
+	f_reading = HAL_GPIO_ReadPin (GPIOC, f_sw13_Pin);
+
+	if (f_reading != f_lastButtonState)
+	{
+		// reset the debouncing timer
+		f_lastDebounceTime = (__HAL_TIM_GET_COUNTER(&htim17)/10);//millis
+	}
+	if (((__HAL_TIM_GET_COUNTER(&htim17)/10) - f_lastDebounceTime) > f_debounceDelay)
+	{
+	  // if the button state has changed:
+	  if (f_reading != f_buttonState)
+	  {
+		f_buttonState = f_reading;
+	  }
+	}
+	//printf("button stage : %d\n",f_buttonState)  //when switch is pressed
+
+
+	if ((f_buttonState == 0) && (f_flag2 == 0))
+	{
+	  f_presstime = (__HAL_TIM_GET_COUNTER(&htim17)/10); //press time in millis
+	  f_flag1 = 0;
+	  f_flag2 = 1;
+	  f_tapCounter++; //tap counter will increase by 1
+	  //printf("Button Press : %d\n",f_tapCounter);
+	}
+
+
+	//when button is released
+	if ((f_buttonState == 1) && (f_flag1 == 0))
+	{
+	  f_releasetime = (__HAL_TIM_GET_COUNTER(&htim17)/10); //release time in millis
+	  f_flag1 = 1;
+	  f_flag2 = 0;
+	  f_timediff = f_releasetime - f_presstime; //the time gap between press and release
+	  //printf(" Time gap between Button press and release : %d\n",f_timediff);
+	}
+
+
+  //wait for some time and if sw is in release position
+	if (((__HAL_TIM_GET_COUNTER(&htim17)/10)- f_presstime) > 400 && f_buttonState == 1)
+	{
+		  if (f_tapCounter == 1) //if tap counter is 1
+		  {
+			if (f_timediff >= 400) //if time diff is larger than 400 then its a hold
+			{
+				printf("Long press\n");
+				f_cur_sel();
+			}
+			else //if timediff is less than 400 then its a single tap
+			{
+				printf("single tap\n");
+				f_cur_mov();
+			}
+		  }
+		  else if (f_tapCounter == 2 ) //if tapcounter is 2
+		  {
+				printf("double tap\n");
+		  }
+		  else if (f_tapCounter == 3) //if tapcounter is 3 //then its triple tap
+		  {
+			  printf("triple tap\n");
+		  }
+		  else if (f_tapCounter == 4) //if tapcounter is 4 then its 4 tap
+		  {
+			  printf("four tap\n");
+		  }
+
+	  f_tapCounter = 0;
+	}
+
+	f_lastButtonState = f_reading;
+
+	return 0;
+}
+//************************************************
 /*This function use for Printing MENU */
 int f_Menu(void)
 {
 	HAL_UART_Transmit(&huart1,msg3,sizeof(msg3),100);
-	s_case=0;
+	s_case = f_cursor;
+
 	return 0;
 }
 
@@ -386,10 +550,12 @@ int main(void)
   MX_UART4_Init();
   MX_I2C2_Init();
   MX_TIM16_Init();
+  MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
 
 	// Start timer
 	HAL_TIM_Base_Start_IT(&htim16);
+	HAL_TIM_Base_Start(&htim17);
 
 	BSP_TSENSOR_Init();
 	BSP_HSENSOR_Init();
@@ -401,7 +567,8 @@ int main(void)
 
 	HAL_UART_Transmit(&huart1,msg1,sizeof(msg1),1000);
 	HAL_UART_Transmit(&huart1,msg2,sizeof(msg2),1000);
-	HAL_UART_Transmit(&huart1,msg3,sizeof(msg3),1000);
+
+	s_case = f_escape;
 
 	HAL_UART_Receive_IT(&huart1,rxData,1);
 
@@ -482,8 +649,11 @@ int main(void)
 				f_Menu();
 				break;
 			}
-
-
+			case f_cursor:
+			{
+				f_Switch();
+				break;
+			}
 			default :
 			{
 				f_Invalid();
@@ -621,6 +791,38 @@ static void MX_TIM16_Init(void)
 }
 
 /**
+  * @brief TIM17 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM17_Init(void)
+{
+
+  /* USER CODE BEGIN TIM17_Init 0 */
+
+  /* USER CODE END TIM17_Init 0 */
+
+  /* USER CODE BEGIN TIM17_Init 1 */
+
+  /* USER CODE END TIM17_Init 1 */
+  htim17.Instance = TIM17;
+  htim17.Init.Prescaler = 8000-1;
+  htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim17.Init.Period = 65535;
+  htim17.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim17.Init.RepetitionCounter = 0;
+  htim17.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim17) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM17_Init 2 */
+
+  /* USER CODE END TIM17_Init 2 */
+
+}
+
+/**
   * @brief UART4 Initialization Function
   * @param None
   * @retval None
@@ -744,11 +946,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : SW_INT_Pin */
-  GPIO_InitStruct.Pin = SW_INT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  /*Configure GPIO pin : f_sw13_Pin */
+  GPIO_InitStruct.Pin = f_sw13_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(SW_INT_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(f_sw13_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : ARD_A5_Pin ARD_A4_Pin ARD_A3_Pin ARD_A2_Pin
                            ARD_A1_Pin ARD_A0_Pin */
@@ -952,27 +1154,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		flag_error = 1;
 	}
 }
-void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin)
-{
-	if(GPIO_Pin == SW_INT_Pin)
-	{
-		f_INT_count++;
-		if(f_INT_count <= 6)
-		{
-			HAL_UART_Transmit(&huart1,com_up,sizeof(com_up),10);
-		}
-		else
-		{
-			HAL_UART_Transmit(&huart1,com_dn,sizeof(com_dn),10);
-			f_INT_count=0;
-		}
-		printf("Button pressed Count : %d\n",f_INT_count);
-	}
-	else{
-		//Do not do anything when else.
-		__NOP();
-	}
-}
+
 
 /* USER CODE END 4 */
 

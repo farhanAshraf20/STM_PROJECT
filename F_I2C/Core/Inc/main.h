@@ -70,9 +70,8 @@ void Error_Handler(void);
 #define SPBTLE_RF_IRQ_EXTI6_Pin GPIO_PIN_6
 #define SPBTLE_RF_IRQ_EXTI6_GPIO_Port GPIOE
 #define SPBTLE_RF_IRQ_EXTI6_EXTI_IRQn EXTI9_5_IRQn
-#define SW_INT_Pin GPIO_PIN_13
-#define SW_INT_GPIO_Port GPIOC
-#define SW_INT_EXTI_IRQn EXTI15_10_IRQn
+#define f_sw13_Pin GPIO_PIN_13
+#define f_sw13_GPIO_Port GPIOC
 #define ARD_A5_Pin GPIO_PIN_0
 #define ARD_A5_GPIO_Port GPIOC
 #define ARD_A4_Pin GPIO_PIN_1
