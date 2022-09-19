@@ -235,29 +235,31 @@ void f_ACCELEROMETER(void)
 		{
 			BSP_ACCELERO_AccGetXYZ(pDataXYZ);
 
-			snprintf(str_acc1,100,"\033\143 X-axis Error");
+			snprintf(str_acc1,100,"\033\143 X-axis Error	Y-axis Error	Z-axis Error \r");
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
-			snprintf(str_acc1,100," Y-axis Error");
+			/*snprintf(str_acc1,100," Y-axis Error");
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
 			snprintf(str_acc1,100," Z-axis Error \r");
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
-			memset(str_acc1, 0, sizeof(str_acc1));
+			memset(str_acc1, 0, sizeof(str_acc1));*/
 		}
 		else
 		{
 			BSP_ACCELERO_AccGetXYZ(pDataXYZ);
 
-			snprintf(str_acc1,100,"\033\143 X-axis = %d      ", pDataXYZ[0]);
+			snprintf(str_acc1,100,"\033\143 X-axis = %d      Y-axis = %d      Z-axis = %d \r", pDataXYZ[0],pDataXYZ[1],pDataXYZ[2]);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
+			/*
 			snprintf(str_acc1,100," Y-axis = %d      ", pDataXYZ[1]);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
 			snprintf(str_acc1,100," Z-axis = %d \r", pDataXYZ[2]);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
+			*/
 			flag_acce = 0;
 		}
 
@@ -274,10 +276,11 @@ void f_GYRO(void)
 		{
 			BSP_GYRO_GetXYZ(pfData);
 
-			snprintf(str_gyro,100,"\033\143 X-axis Error");
+			snprintf(str_gyro,100,"\033\143 X-axis Error	Y-axis Error	Z-axis Error \r");
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
 			memset(str_gyro, 0, sizeof(str_gyro));
 
+			/*
 			snprintf(str_gyro,100," Y-axis Error");
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
 			memset(str_gyro, 0, sizeof(str_gyro));
@@ -285,14 +288,16 @@ void f_GYRO(void)
 			snprintf(str_gyro,100," Z-axis Error \r");
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
 			memset(str_gyro, 0, sizeof(str_gyro));
+			*/
 		}
 		else
 		{
 			BSP_GYRO_GetXYZ(pfData);
-			snprintf(str_gyro,100,"\033\143 X-axis = %.2f      ", pfData[0]);
+			snprintf(str_gyro,100,"\033\143 X-axis = %.2f      Y-axis = %.2f      Z-axis = %.2f \r", pfData[0],pfData[1],pfData[2]);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
 			memset(str_gyro, 0, sizeof(str_gyro));
 
+			/*
 			snprintf(str_gyro,100," Y-axis = %.2f      ", pfData[1]);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
 			memset(str_gyro, 0, sizeof(str_gyro));
@@ -300,6 +305,8 @@ void f_GYRO(void)
 			snprintf(str_gyro,100," Z-axis = %.2f \r", pfData[2]);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
 			memset(str_gyro, 0, sizeof(str_gyro));
+			*/
+
 			flag_gyro = 0;
 		}
 	}
@@ -316,29 +323,33 @@ void f_MAGNETOMETERR(void)
 		{
 			BSP_MAGNETO_GetXYZ(pDataXYZ);
 
-			snprintf(str_acc1,100,"\033\143 X-axis Error");
+			snprintf(str_acc1,100,"\033\143 X-axis Error	Y-axis Error	Z-axis Error \r");
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
+			/*
 			snprintf(str_acc1,100," Y-axis Error");
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
 			snprintf(str_acc1,100," Z-axis Error \r");
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
-			memset(str_acc1, 0, sizeof(str_acc1));
+			memset(str_acc1, 0, sizeof(str_acc1));*/
+
 		}
 		else
 		{
 			BSP_MAGNETO_GetXYZ(pDataXYZ);
 
-			snprintf(str_acc1,100,"\033\143 X-axis = %d      ", pDataXYZ[0]);
+			snprintf(str_acc1,100,"\033\143 X-axis = %d      Y-axis = %d      Z-axis = %d \r", pDataXYZ[0],pDataXYZ[1],pDataXYZ[2]);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
+			/*
 			snprintf(str_acc1,100," Y-axis = %d      ", pDataXYZ[1]);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
 			snprintf(str_acc1,100," Z-axis = %d \r", pDataXYZ[2]);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
+			*/
 			flag_mag = 0;
 		}
 
@@ -470,14 +481,8 @@ int f_Switch(void)
 		  else if (f_tapCounter == 2 ) //if tapcounter is 2
 		  {
 				printf("double tap\n");
-		  }
-		  else if (f_tapCounter == 3) //if tapcounter is 3 //then its triple tap
-		  {
-			  printf("triple tap\n");
-		  }
-		  else if (f_tapCounter == 4) //if tapcounter is 4 then its 4 tap
-		  {
-			  printf("four tap\n");
+				s_case = f_escape;
+
 		  }
 
 	  f_tapCounter = 0;
@@ -492,7 +497,8 @@ int f_Switch(void)
 int f_Menu(void)
 {
 	HAL_UART_Transmit(&huart1,msg3,sizeof(msg3),100);
-	s_case = f_cursor;
+	f_INT_count=1;
+	s_case = 0;
 
 	return 0;
 }
@@ -583,6 +589,8 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
+	  f_Switch();
+
 	  /*  This if condition is use for UART1 (Interrupt based) */
 		if(newMsg)
 		{
@@ -647,11 +655,6 @@ int main(void)
 			case f_escape:
 			{
 				f_Menu();
-				break;
-			}
-			case f_cursor:
-			{
-				f_Switch();
 				break;
 			}
 			default :
