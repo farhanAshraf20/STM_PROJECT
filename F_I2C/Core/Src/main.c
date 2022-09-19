@@ -22,11 +22,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include"stdio.h"
-#include"string.h"
-#include"stdbool.h"
-#include <math.h>
 
+#include "stdio.h"
+#include "string.h"
+#include "stdbool.h"
+#include "math.h"
 #include "stm32l475e_iot01.h"
 #include "stm32l475e_iot01_tsensor.h"
 #include "stm32l475e_iot01_hsensor.h"
@@ -58,7 +58,6 @@
 #define f_Six		54
 #define f_escape 	27
 #define f_error     55
-#define f_cursor    56
 #define f_size		1
 #define f_count		10000
 
@@ -91,15 +90,15 @@ char  str_acc1[100]	= {0};				// Accelerometer  x-axis,y-axis,z-axis
 int16_t pDataXYZ[3] = {0};				// Accelerometer  Data
 float pfData[3]		= {0};				// GYRO Data
 
-uint8_t msg1[] = "\033\143 ****** sensors values measurement ******\n\r";
-uint8_t msg2[] = "Initialize ALL sensors\r\n";
-uint8_t msg3[] = "\033\143 Please select the option \r\n 1. TEMPERATURE \r\n 2. HUMIDITY \r\n 3. PRESSURE \r\n 4. ACCELERO \r\n 5. GYRO \r\n 6. MAGNETOMETER \r\n ***MENU*** \r\nPress Escape + Enter\r\033[7A";
-uint8_t com_up[]= "\033[5A";
-uint8_t com_dn[]= "\033[B";
+uint8_t msg1[] 		= "\033\143 ****** sensors values measurement ******\n\r";
+uint8_t msg2[] 		= "Initialize ALL sensors\r\n";
+uint8_t msg3[] 		= "\033\143 Please select the option \r\n 1. TEMPERATURE \r\n 2. HUMIDITY \r\n 3. PRESSURE \r\n 4. ACCELERO \r\n 5. GYRO \r\n 6. MAGNETOMETER \r\n ***MENU*** \r\nPress Escape + Enter\r\033[7A";
+uint8_t com_up[]	= "\033[5A";
+uint8_t com_dn[]	= "\033[B";
+char Invalid[30]	= "\033\143!!..Invalid Input..!!\r\n";
 
-char Invalid[30]="\033\143!!..Invalid Input..!!\r\n";
+/**************************************** Switch ********************************************************************/
 
-//************************** Switch *************************************************
 uint16_t f_lastDebounceTime = 0;  					//last time the output pin was toggled
 uint16_t f_debounceDelay = 50;    					//debounce time
 uint16_t f_presstime, f_releasetime; 				//in millis at press and millis at release
@@ -109,11 +108,14 @@ bool f_buttonState = 1; 						    //state of the switch
 bool f_flag1, f_flag2; 								//just two variables
 uint8_t f_tapCounter=0; 							//switch pressed counter
 uint16_t f_reading=0;								//current state of Button
+uint8_t sw_flag	=0;									//flag for (f_INT_count )  increment
+uint8_t f_INT_count =1;								//for cursore move
+uint8_t s_case = 0;									//Switch case input
 
-//**************************************************************************************
+/************************************* END **************************************************************************/
 
 
-/************checking the timer callback*****************/
+/************ checking the timer callback ****************************/
 
 uint8_t flag_temp  = 1;
 uint8_t flag_humi  = 1;
@@ -123,14 +125,12 @@ uint8_t flag_gyro  = 1;
 uint8_t flag_mag   = 1;
 uint8_t flag_error = 1;
 
-/*******************************************************/
+/*********************** END *******************************************/
 
-uint8_t s_case = 0;						//Switch case input
+/********************* UART1 *******************************************/
 uint8_t newMsg = 0 , rxData[BUFFERDATA] , rxIndex=0,size=0;
 
-uint8_t f_INT_count =1;
-uint8_t f_INT_count1 =0;
-
+/********************** END ********************************************/
 
 /* USER CODE END PV */
 
@@ -149,7 +149,7 @@ static void MX_TIM17_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-/*This function use for extracting Temperature data */
+/************************************** This function use for extracting Temperature data **********************************************/
 void f_Temperature(void)
 {
 	//printf("Flag state  :%d\n",flag);
@@ -175,7 +175,7 @@ void f_Temperature(void)
 	}
 
 }
-
+/*********************************************************** END **************************************************************************/
 
 /*This function use for extracting Humidity data */
 void f_Humidity(void)
@@ -199,9 +199,9 @@ void f_Humidity(void)
 
 	}
 }
+/*********************************************************** END **************************************************************************/
 
-
-/*This function use for extracting Pressure data */
+/************************************* This function use for extracting Pressure data *****************************************************/
 void f_Pressure(void)
 {
 	if(flag_pre)
@@ -224,9 +224,9 @@ void f_Pressure(void)
 	}
 
 }
+/*********************************************************** END **************************************************************************/
 
-
-/*This function use for extracting ACCELEROMETER data */
+/********************************************** This function use for extracting ACCELEROMETER data ***************************************/
 void f_ACCELEROMETER(void)
 {
 	if(flag_acce)
@@ -238,36 +238,22 @@ void f_ACCELEROMETER(void)
 			snprintf(str_acc1,100,"\033\143 X-axis Error	Y-axis Error	Z-axis Error \r");
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
-			/*snprintf(str_acc1,100," Y-axis Error");
-			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
-			memset(str_acc1, 0, sizeof(str_acc1));
-			snprintf(str_acc1,100," Z-axis Error \r");
-			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
-			memset(str_acc1, 0, sizeof(str_acc1));*/
 		}
 		else
 		{
 			BSP_ACCELERO_AccGetXYZ(pDataXYZ);
-
 			snprintf(str_acc1,100,"\033\143 X-axis = %d      Y-axis = %d      Z-axis = %d \r", pDataXYZ[0],pDataXYZ[1],pDataXYZ[2]);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
-			/*
-			snprintf(str_acc1,100," Y-axis = %d      ", pDataXYZ[1]);
-			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
-			memset(str_acc1, 0, sizeof(str_acc1));
-			snprintf(str_acc1,100," Z-axis = %d \r", pDataXYZ[2]);
-			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
-			memset(str_acc1, 0, sizeof(str_acc1));
-			*/
 			flag_acce = 0;
 		}
 
 	}
 
 }
+/*********************************************************** END **************************************************************************/
 
-/*This function use for extracting GYRO data */
+/************************************************* This function use for extracting GYRO data *********************************************/
 void f_GYRO(void)
 {
 	if(flag_gyro)
@@ -279,16 +265,6 @@ void f_GYRO(void)
 			snprintf(str_gyro,100,"\033\143 X-axis Error	Y-axis Error	Z-axis Error \r");
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
 			memset(str_gyro, 0, sizeof(str_gyro));
-
-			/*
-			snprintf(str_gyro,100," Y-axis Error");
-			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
-			memset(str_gyro, 0, sizeof(str_gyro));
-
-			snprintf(str_gyro,100," Z-axis Error \r");
-			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
-			memset(str_gyro, 0, sizeof(str_gyro));
-			*/
 		}
 		else
 		{
@@ -296,25 +272,14 @@ void f_GYRO(void)
 			snprintf(str_gyro,100,"\033\143 X-axis = %.2f      Y-axis = %.2f      Z-axis = %.2f \r", pfData[0],pfData[1],pfData[2]);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
 			memset(str_gyro, 0, sizeof(str_gyro));
-
-			/*
-			snprintf(str_gyro,100," Y-axis = %.2f      ", pfData[1]);
-			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
-			memset(str_gyro, 0, sizeof(str_gyro));
-
-			snprintf(str_gyro,100," Z-axis = %.2f \r", pfData[2]);
-			HAL_UART_Transmit(&huart1,( uint8_t * )str_gyro,sizeof(str_gyro),10);
-			memset(str_gyro, 0, sizeof(str_gyro));
-			*/
-
 			flag_gyro = 0;
 		}
 	}
 
 }
+/*********************************************************** END **************************************************************************/
 
-
-/*This function use for extracting MAGNETOMETER data */
+/******************************************This function use for extracting MAGNETOMETER data *********************************************/
 void f_MAGNETOMETERR(void)
 {
 	if(flag_mag)
@@ -326,13 +291,6 @@ void f_MAGNETOMETERR(void)
 			snprintf(str_acc1,100,"\033\143 X-axis Error	Y-axis Error	Z-axis Error \r");
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
-			/*
-			snprintf(str_acc1,100," Y-axis Error");
-			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
-			memset(str_acc1, 0, sizeof(str_acc1));
-			snprintf(str_acc1,100," Z-axis Error \r");
-			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
-			memset(str_acc1, 0, sizeof(str_acc1));*/
 
 		}
 		else
@@ -342,24 +300,16 @@ void f_MAGNETOMETERR(void)
 			snprintf(str_acc1,100,"\033\143 X-axis = %d      Y-axis = %d      Z-axis = %d \r", pDataXYZ[0],pDataXYZ[1],pDataXYZ[2]);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
 			memset(str_acc1, 0, sizeof(str_acc1));
-			/*
-			snprintf(str_acc1,100," Y-axis = %d      ", pDataXYZ[1]);
-			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
-			memset(str_acc1, 0, sizeof(str_acc1));
-			snprintf(str_acc1,100," Z-axis = %d \r", pDataXYZ[2]);
-			HAL_UART_Transmit(&huart1,( uint8_t * )str_acc1,sizeof(str_acc1),10);
-			memset(str_acc1, 0, sizeof(str_acc1));
-			*/
 			flag_mag = 0;
 		}
 
 	}
 
 }
+/*********************************************************** END **************************************************************************/
 
-//*********************************************
 
-
+/*********************************************************** This function use for Cursor Move ********************************************/
 void f_cur_mov(void)
 {
 	f_INT_count++;
@@ -373,10 +323,11 @@ void f_cur_mov(void)
 		HAL_UART_Transmit(&huart1,com_up,sizeof(com_up),10);
 		f_INT_count=1;
 	}
-	//printf("Button pressed Count : %d\n",f_INT_count);
 
 }
+/*********************************************************** END **************************************************************************/
 
+/*********************************************** This function use for Cursor Select ******************************************************/
 void f_cur_sel(void)
 {
 	switch(f_INT_count)
@@ -388,38 +339,34 @@ void f_cur_sel(void)
 		}
 		case 2:
 		{
-			//printf("ACCELERO\n");
 			s_case =  f_Two;
 			break;
 		}
 		case 3:
 		{
-			//printf("ACCELERO\n");
 			s_case = f_Three;
 			break;
 		}
 		case 4:
 		{
-			//printf("ACCELERO\n");
 			s_case = f_Four;
 			break;
 		}
 		case 5:
 		{
-			//printf("GYRO\n");
 			s_case = f_Five;
 			break;
 		}
 		case 6:
 		{
 			s_case = f_Six;
-			//printf("MAGNETOMETER\n");
-			break;
 		}
 
 	}
 }
+/*********************************************************** END **************************************************************************/
 
+/************************************************ This function use for Switch  ***********************************************************/
 int f_Switch(void)
 {
 
@@ -475,7 +422,10 @@ int f_Switch(void)
 			else //if timediff is less than 400 then its a single tap
 			{
 				printf("single tap\n");
-				f_cur_mov();
+				if(sw_flag)
+				{
+					f_cur_mov();
+				}
 			}
 		  }
 		  else if (f_tapCounter == 2 ) //if tapcounter is 2
@@ -492,22 +442,23 @@ int f_Switch(void)
 
 	return 0;
 }
-//************************************************
-/*This function use for Printing MENU */
+/*********************************************************** END **************************************************************************/
+
+/****************************************** This function use for Printing MENU ***********************************************************/
 int f_Menu(void)
 {
 	HAL_UART_Transmit(&huart1,msg3,sizeof(msg3),100);
 	f_INT_count=1;
+	sw_flag = 1;
 	s_case = 0;
 
 	return 0;
 }
+/*********************************************************** END **************************************************************************/
 
-/*This function use for Printing Invalid */
+/******************************************** This function use for Printing Invalid ******************************************************/
 int f_Invalid(void)
 {
-
-	//s_case=0;
 
 	if(flag_error)
 	{
@@ -517,7 +468,7 @@ int f_Invalid(void)
 
 return 0;
 }
-
+/*********************************************************** END **************************************************************************/
 
 /* USER CODE END 0 */
 
@@ -620,40 +571,46 @@ int main(void)
 			{
 				break;
 			}
-
 			case f_One:
 			{
+				sw_flag=0;
 				f_Temperature();
 				break;
 			}
 			case f_Two:
 			{
+				sw_flag=0;
 				f_Humidity();
 				break;
 			}
 			case f_Three:
 			{
 
+				sw_flag=0;
 				f_Pressure();
 				break;
 			}
 			case f_Four:
 			{
+				sw_flag=0;
 				f_ACCELEROMETER();
 				break;
 			}
 			case f_Five:
 			{
+				sw_flag=0;
 				f_GYRO();
 				break;
 			}
 			case f_Six:
 			{
+				sw_flag=0;
 				f_MAGNETOMETERR();
 				break;
 			}
 			case f_escape:
 			{
+				sw_flag=0;
 				f_Menu();
 				break;
 			}
