@@ -23,6 +23,7 @@ SUBDIRS := \
 Core/Src \
 Core/Startup \
 Drivers/BSP/B-L475E-IOT01 \
+Drivers/BSP/B-L475E-IOT01/vl53l0x \
 Drivers/BSP/Components/cs42l51 \
 Drivers/BSP/Components/cs43l22 \
 Drivers/BSP/Components/cy8c4014lqi \

@@ -47,14 +47,19 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
+#define PROXIMITY_I2C_ADDRESS         ((uint16_t)0x0052)
+#define VL53L0X_ID                    ((uint16_t)0xEEAA)
+#define VL53L0X_XSHUT_Pin GPIO_PIN_6
+#define VL53L0X_XSHUT_GPIO_Port GPIOC
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+void Proximity_Test(void);
+uint32_t Serial_Scanf(uint32_t value);
+extern void     SENSOR_IO_Init(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

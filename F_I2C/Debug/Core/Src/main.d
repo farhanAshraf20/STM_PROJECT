@@ -47,7 +47,18 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_gyro.h \
  C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_magneto.h \
  c:\ashraf_mcu\f_i2c\drivers\bsp\components\lis3mdl\lis3mdl.h \
- c:\ashraf_mcu\f_i2c\drivers\bsp\components\common\magneto.h
+ c:\ashraf_mcu\f_i2c\drivers\bsp\components\common\magneto.h \
+ C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x_proximity.h \
+ C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_tof.h \
+ C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/VL53L0X_def.h \
+ C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_device.h \
+ C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_types.h \
+ C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_api.h \
+ C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_api_strings.h \
+ C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_def.h \
+ C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_platform.h \
+ C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_platform_log.h \
+ C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_tof.h
 
 ../Core/Inc/main.h:
 
@@ -148,3 +159,25 @@ C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_magneto.h:
 c:\ashraf_mcu\f_i2c\drivers\bsp\components\lis3mdl\lis3mdl.h:
 
 c:\ashraf_mcu\f_i2c\drivers\bsp\components\common\magneto.h:
+
+C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x_proximity.h:
+
+C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_tof.h:
+
+C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/VL53L0X_def.h:
+
+C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_device.h:
+
+C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_types.h:
+
+C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_api.h:
+
+C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_api_strings.h:
+
+C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_def.h:
+
+C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_platform.h:
+
+C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_platform_log.h:
+
+C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_tof.h:

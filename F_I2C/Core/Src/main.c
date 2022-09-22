@@ -34,6 +34,8 @@
 #include "stm32l475e_iot01_accelero.h"
 #include "stm32l475e_iot01_gyro.h"
 #include "stm32l475e_iot01_magneto.h"
+#include "vl53l0x_proximity.h"
+//#include " VL53L0X_def.h"
 
 
 /* USER CODE END Includes */
@@ -56,8 +58,9 @@
 #define f_Four	 	52
 #define f_Five		53
 #define f_Six		54
+#define f_Seven		55
 #define f_escape 	27
-#define f_error     55
+#define f_error     56
 #define f_size		1
 #define f_count		10000
 
@@ -92,8 +95,8 @@ float pfData[3]		= {0};				// GYRO Data
 
 uint8_t msg1[] 		= "\033\143 ****** sensors values measurement ******\n\r";
 uint8_t msg2[] 		= "Initialize ALL sensors\r\n";
-uint8_t msg3[] 		= "\033\143 Please select the option \r\n 1. TEMPERATURE \r\n 2. HUMIDITY \r\n 3. PRESSURE \r\n 4. ACCELERO \r\n 5. GYRO \r\n 6. MAGNETOMETER \r\n ***MENU*** \r\nPress Escape + Enter\r\033[7A";
-uint8_t com_up[]	= "\033[5A";
+uint8_t msg3[] 		= "\033\143 Please select the option \r\n 1. TEMPERATURE \r\n 2. HUMIDITY \r\n 3. PRESSURE \r\n 4. ACCELERO \r\n 5. GYRO \r\n 6. MAGNETOMETER \r\n 7. PROXIMITY \r\n***MENU*** \r\nPress Escape + Enter\r\033[8A";
+uint8_t com_up[]	= "\033[6A";
 uint8_t com_dn[]	= "\033[B";
 char Invalid[30]	= "\033\143!!..Invalid Input..!!\r\n";
 
@@ -123,6 +126,7 @@ uint8_t flag_pre   = 1;
 uint8_t flag_acce  = 1;
 uint8_t flag_gyro  = 1;
 uint8_t flag_mag   = 1;
+uint8_t flag_pro   = 1;
 uint8_t flag_error = 1;
 
 /*********************** END *******************************************/
@@ -131,6 +135,10 @@ uint8_t flag_error = 1;
 uint8_t newMsg = 0 , rxData[BUFFERDATA] , rxIndex=0,size=0;
 
 /********************** END ********************************************/
+
+uint16_t prox_value = 0;
+char str_pro[100] 	= "";
+
 
 /* USER CODE END PV */
 
@@ -149,6 +157,102 @@ static void MX_TIM17_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+
+
+
+/********************************** Test of VL53L0X proximity sensor *********************************************************************/
+
+void Proximity_Test(void)
+{
+	if(flag_pro)
+	{
+		prox_value = VL53L0X_PROXIMITY_GetDistance();
+		snprintf(str_pro,100," \033\143 Distance = %d mm\r", prox_value);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_pro,sizeof(str_pro),10);
+		memset(str_pro, 0, sizeof(str_pro));
+		flag_pro=0;
+	}
+
+}
+
+
+/**
+  * @brief  VL53L0X proximity sensor Initialization.
+  */
+static void VL53L0X_PROXIMITY_Init(void)
+{
+  uint16_t vl53l0x_id = 0;
+  VL53L0X_DeviceInfo_t VL53L0X_DeviceInfo;
+
+  /* Initialize IO interface */
+  SENSOR_IO_Init();
+  VL53L0X_PROXIMITY_MspInit();
+
+  memset(&VL53L0X_DeviceInfo, 0, sizeof(VL53L0X_DeviceInfo_t));
+
+  if (VL53L0X_ERROR_NONE == VL53L0X_GetDeviceInfo(&Dev, &VL53L0X_DeviceInfo))
+  {
+    if (VL53L0X_ERROR_NONE == VL53L0X_RdWord(&Dev, VL53L0X_REG_IDENTIFICATION_MODEL_ID, (uint16_t *) &vl53l0x_id))
+    {
+      if (vl53l0x_id == VL53L0X_ID)
+      {
+        if (VL53L0X_ERROR_NONE == VL53L0X_DataInit(&Dev))
+        {
+          Dev.Present = 1;
+          SetupSingleShot(Dev);
+        }
+        else
+        {
+          printf("VL53L0X Time of Flight Failed to send its ID!\n");
+        }
+      }
+    }
+    else
+    {
+      printf("VL53L0X Time of Flight Failed to Initialize!\n");
+    }
+  }
+  else
+  {
+    printf("VL53L0X Time of Flight Failed to get infos!\n");
+  }
+}
+
+/**
+  * @brief  Get distance from VL53L0X proximity sensor.
+  * @retval Distance in mm
+  */
+static uint16_t VL53L0X_PROXIMITY_GetDistance(void)
+{
+  VL53L0X_RangingMeasurementData_t RangingMeasurementData;
+
+  VL53L0X_PerformSingleRangingMeasurement(&Dev, &RangingMeasurementData);
+
+  return RangingMeasurementData.RangeMilliMeter;
+}
+
+
+
+/**
+  * @brief  VL53L0X proximity sensor Msp Initialization.
+  */
+static void VL53L0X_PROXIMITY_MspInit(void)
+{/*
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  Configure GPIO pin : VL53L0X_XSHUT_Pin
+  GPIO_InitStruct.Pin = VL53L0X_XSHUT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(VL53L0X_XSHUT_GPIO_Port, &GPIO_InitStruct);
+*/
+
+  HAL_GPIO_WritePin(VL53L0X_XSHUT_GPIO_Port, VL53L0X_XSHUT_Pin, GPIO_PIN_SET);
+  HAL_Delay(1000);
+
+}
+/***************************************888888888888888888*********** END **************************************************************/
 /************************************** This function use for extracting Temperature data **********************************************/
 void f_Temperature(void)
 {
@@ -314,7 +418,7 @@ void f_cur_mov(void)
 {
 	f_INT_count++;
 
-	if(f_INT_count <= 6)
+	if(f_INT_count <= 7)
 	{
 		HAL_UART_Transmit(&huart1,com_dn,sizeof(com_dn),10);
 	}
@@ -360,6 +464,10 @@ void f_cur_sel(void)
 		case 6:
 		{
 			s_case = f_Six;
+		}
+		case 7:
+		{
+			s_case = f_Seven;
 		}
 
 	}
@@ -520,6 +628,7 @@ int main(void)
 	BSP_ACCELERO_Init();
 	BSP_GYRO_Init();
 	BSP_MAGNETO_Init();
+	VL53L0X_PROXIMITY_Init();
 
 
 	HAL_UART_Transmit(&huart1,msg1,sizeof(msg1),1000);
@@ -606,6 +715,12 @@ int main(void)
 			{
 				sw_flag=0;
 				f_MAGNETOMETERR();
+				break;
+			}
+			case f_Seven:
+			{
+				sw_flag=0;
+				Proximity_Test();
 				break;
 			}
 			case f_escape:
@@ -1011,18 +1126,25 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : VL53L0X_XSHUT_Pin LED3_WIFI__LED4_BLE_Pin */
-  GPIO_InitStruct.Pin = VL53L0X_XSHUT_Pin|LED3_WIFI__LED4_BLE_Pin;
+  /*Configure GPIO pin : VL53L0X_XSHUT_Pin */
+  GPIO_InitStruct.Pin = VL53L0X_XSHUT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(VL53L0X_XSHUT_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : VL53L0X_GPIO1_EXTI7_Pin LSM3MDL_DRDY_EXTI8_Pin */
   GPIO_InitStruct.Pin = VL53L0X_GPIO1_EXTI7_Pin|LSM3MDL_DRDY_EXTI8_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : LED3_WIFI__LED4_BLE_Pin */
+  GPIO_InitStruct.Pin = LED3_WIFI__LED4_BLE_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(LED3_WIFI__LED4_BLE_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : USB_OTG_FS_VBUS_Pin */
   GPIO_InitStruct.Pin = USB_OTG_FS_VBUS_Pin;
@@ -1111,6 +1233,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		flag_acce  = 1;
 		flag_gyro  = 1;
 		flag_mag   = 1;
+		flag_pro   = 1;
 		flag_error = 1;
 	}
 }

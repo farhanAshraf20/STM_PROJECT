@@ -35,6 +35,7 @@ RM := rm -rf
 -include Drivers/BSP/Components/cy8c4014lqi/subdir.mk
 -include Drivers/BSP/Components/cs43l22/subdir.mk
 -include Drivers/BSP/Components/cs42l51/subdir.mk
+-include Drivers/BSP/B-L475E-IOT01/vl53l0x/subdir.mk
 -include Drivers/BSP/B-L475E-IOT01/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
