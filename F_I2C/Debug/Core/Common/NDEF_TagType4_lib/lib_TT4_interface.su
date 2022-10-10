@@ -1,0 +1,16 @@
+lib_TT4_interface.c:74:10:TT4_Init	32	static
+lib_TT4_interface.c:107:10:TT4_ReadNDEF	24	static
+lib_TT4_interface.c:129:10:TT4_WriteNDEF	24	static
+lib_TT4_interface.c:151:10:TT4_ReadURI	32	static
+lib_TT4_interface.c:179:10:TT4_WriteURI	24	static
+lib_TT4_interface.c:201:10:TT4_ReadSMS	32	static
+lib_TT4_interface.c:228:10:TT4_WriteSMS	24	static
+lib_TT4_interface.c:250:10:TT4_ReadEmail	32	static
+lib_TT4_interface.c:278:10:TT4_WriteEmail	24	static
+lib_TT4_interface.c:300:10:TT4_ReadVcard	32	static
+lib_TT4_interface.c:328:10:TT4_WriteVcard	24	static
+lib_TT4_interface.c:350:10:TT4_ReadGeo	32	static
+lib_TT4_interface.c:377:10:TT4_WriteGeo	24	static
+lib_TT4_interface.c:399:10:TT4_ReadMyApp	32	static
+lib_TT4_interface.c:427:10:TT4_WriteMyApp	24	static
+lib_TT4_interface.c:449:10:TT4_AddAAR	24	static

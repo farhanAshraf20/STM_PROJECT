@@ -37,6 +37,10 @@
 #include "vl53l0x_proximity.h"
 //#include " VL53L0X_def.h"
 
+#include "stm32l475e_iot01.h"
+#include "lib_TT4_interface.h"
+#include "m24sr.h"
+#include "VcardCSL1.h"
 
 /* USER CODE END Includes */
 
@@ -47,6 +51,15 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+/************************************************ For NFC API ************************************************************************/
+typedef struct
+{
+  void   (*DemoFunc)(void);
+  uint8_t DemoName[20];
+  uint32_t DemoIndex;
+}BSP_DemoTypedef;
+
+/******************************************************************** END **************************************************************/
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -59,8 +72,27 @@
 #define f_Five		53
 #define f_Six		54
 #define f_Seven		55
+#define f_Eight		56
+#define f_Nine		57
+
+#define f_a			97
+#define	f_b			98
+#define	f_c			99
+#define	f_d			100
+#define	f_e			101
+#define	f_f			102
+#define	f_g			103
+
+#define f_A			65
+#define f_B			66
+#define f_C			67
+#define f_D			68
+#define f_E			69
+#define f_F			70
+#define f_G			71
+
 #define f_escape 	27
-#define f_error     56
+#define f_error     72
 #define f_size		1
 #define f_count		10000
 
@@ -95,12 +127,12 @@ float pfData[3]		= {0};				// GYRO Data
 
 uint8_t msg1[] 		= "\033\143 ****** sensors values measurement ******\n\r";
 uint8_t msg2[] 		= "Initialize ALL sensors\r\n";
-uint8_t msg3[] 		= "\033\143 Please select the option \r\n 1. TEMPERATURE \r\n 2. HUMIDITY \r\n 3. PRESSURE \r\n 4. ACCELERO \r\n 5. GYRO \r\n 6. MAGNETOMETER \r\n 7. PROXIMITY \r\n***MENU*** \r\nPress Escape + Enter\r\033[8A";
-uint8_t com_up[]	= "\033[6A";
+uint8_t msg3[] 		= "\033\143 Please select the option \r\n 1. TEMPERATURE \r\n 2. HUMIDITY \r\n 3. PRESSURE \r\n 4. ACCELERO \r\n 5. GYRO \r\n 6. MAGNETOMETER \r\n 7. PROXIMITY \r\n 8. NFC EMAIL Write\r\n 9. NFC EMAIL Read\r\n A. NFC URI Write\r\n B. NFC URI Read\r\n C. NFC VCARD Write\r\n D. NFC VCARD Read\r\n E. NFC SMS Write\r\n F. NFC SMS Read\r\n G. AAR Write\r\n ***MENU*** \r\nPress Escape + Enter\r\033[17A";
+uint8_t com_up[]	= "\033[15A";
 uint8_t com_dn[]	= "\033[B";
 char Invalid[30]	= "\033\143!!..Invalid Input..!!\r\n";
 
-/**************************************** Switch ********************************************************************/
+/******************************************************** Switch ********************************************************************/
 
 uint16_t f_lastDebounceTime = 0;  					//last time the output pin was toggled
 uint16_t f_debounceDelay = 50;    					//debounce time
@@ -115,43 +147,114 @@ uint8_t sw_flag	=0;									//flag for (f_INT_count )  increment
 uint8_t f_INT_count =1;								//for cursore move
 uint8_t s_case = 0;									//Switch case input
 
-/************************************* END **************************************************************************/
+/******************************************************************** END **************************************************************/
 
 
-/************ checking the timer callback ****************************/
+/************************************************ checking the timer callback **********************************************************/
 
-uint8_t flag_temp  = 1;
-uint8_t flag_humi  = 1;
-uint8_t flag_pre   = 1;
-uint8_t flag_acce  = 1;
-uint8_t flag_gyro  = 1;
-uint8_t flag_mag   = 1;
-uint8_t flag_pro   = 1;
-uint8_t flag_error = 1;
+uint8_t flag_temp  		= 1;
+uint8_t flag_humi  		= 1;
+uint8_t flag_pre   		= 1;
+uint8_t flag_acce  		= 1;
+uint8_t flag_gyro  		= 1;
+uint8_t flag_mag   		= 1;
+uint8_t flag_pro   		= 1;
+uint8_t flag_Email 		= 1;
+uint8_t flag_R_Email 	= 1;
+uint8_t	flag_Vcard		= 1;
+uint8_t flag_R_Vcard	= 1;
+uint8_t	flag_aar		= 1;
+uint8_t	flag_URL		= 1;
+uint8_t flag_R_URL		= 1;
+uint8_t flag_sms		= 1;
+uint8_t flag_R_sms		= 1;
+uint8_t flag_error 		= 1;
 
-/*********************** END *******************************************/
+/******************************************************************** END **************************************************************/
 
 /********************* UART1 *******************************************/
 uint8_t newMsg = 0 , rxData[BUFFERDATA] , rxIndex=0,size=0;
 
-/********************** END ********************************************/
+/******************************************************************** END **************************************************************/
 
 uint16_t prox_value = 0;
 char str_pro[100] 	= "";
 
+volatile uint16_t count_error	= 0;
+
+/******************************************************** Email Write ******************************************************************/
+
+char EmailAdd[] 	= {"farhanashraf1999@gmail.com\0"};
+char Subject[] 		= {"NFC Email Write Demo...\0"};
+char EmailMessage[] = {"For Testing email\0"};
+char Information[] 	= {"Email\0"};
+
+/******************************************************************** END **************************************************************/
+
+/******************Field to fill for the SMS demonstration *********/
+
+char PhoneNumber[] 	= {"6201133237\0"};
+char Message[] 		= {"NFC Message Demo\0"};
+char Instruction[] 	= {"This is an example of NFC generated SMS\0"};
+
+/******************************************************************** END **************************************************************/
+
+/************************************************************* Vcard demonstration *****************************************************/
+
+char FirstName[] = {"Farhan Ashraf\0"};
+char Title[] = {"Customer support\0"};
+char Org[] = {"Einfochips\0"};
+char HomeAddress[] = {"\0"};
+char WorkAddress[] = {"Einfochips Ratna Ognaj\0"};
+char HomeTel[] = {"\0"};
+char WorkTel[] = {"\0"};
+char CellTel[] = {"62 01 13 32 37\0"};
+char HomeEmail[] = {"\0"};
+char WorkEmail[] = {"farhan.ashraf@einfochips.com\0"};
+
+/******************************************************************** END **************************************************************/
+
+/***************************************************************************************************************************************/
+char str_url[300] 	= "";
+char str_email[700] = "";
+char str_Vcard[1000] = "";
+char str_sms[300] 	= "";
+
+/******************************************************************** END **************************************************************/
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+
 static void MX_GPIO_Init(void);
+
 static void MX_USART1_UART_Init(void);
 static void MX_UART4_Init(void);
+
 static void MX_I2C2_Init(void);
+
 static void MX_TIM16_Init(void);
 static void MX_TIM17_Init(void);
 /* USER CODE BEGIN PFP */
+/************************* NFC API Initialization *************************************/
 
+static void EMAILwrite_demo(void);
+static void EMAILread_demo(void);
+
+static void URIwrite_demo(void);
+static void URIread_demo(void);
+
+static void Vcardwrite_demo2(void);
+static void Vcardread_demo2(void);
+
+static void SMSwrite_demo(void);
+static void SMSread_demo(void);
+
+static void AARwrite_demo(void);
+
+/******************************************************************** END **************************************************************/
+void Error_Handler(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -159,6 +262,282 @@ static void MX_TIM17_Init(void);
 
 
 
+/************************* NFC API Calling *************************************/
+BSP_DemoTypedef  NFC_examples[]=
+	{
+		{EMAILwrite_demo, "EMAIL", 0},
+		{EMAILread_demo,"R_EMAIL", 1},
+
+		{URIwrite_demo,"URI", 2},
+		{URIread_demo,"R_URI", 3},
+
+		{Vcardwrite_demo2,"vCARD2", 4},
+		{Vcardread_demo2,"R_vCARD2", 5},
+
+		{SMSwrite_demo,"SMS", 6},
+		{SMSread_demo,"R_SMS", 7},
+
+		{AARwrite_demo,"AAR", 8},
+
+	};
+/******************************************************************** END **************************************************************/
+static void EMAILwrite_demo(void)
+{
+	if(flag_Email)
+	{
+		uint16_t status = ERROR;
+		HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143NFC Email Write Mode\r\n",sizeof("\033\143NFC Email Write Mode\r\n"),10);
+		sEmailInfo EmailStruct;
+		sEmailInfo *pEmailStruct;
+
+		pEmailStruct = &EmailStruct;
+
+		memcpy(pEmailStruct->EmailAdd, EmailAdd, strlen(EmailAdd)+1);
+		memcpy(pEmailStruct->Subject, Subject, strlen(Subject)+1);
+		memcpy(pEmailStruct->Message, EmailMessage, strlen(EmailMessage)+1);
+		memcpy(pEmailStruct->Information, Information, strlen(Information)+1);
+
+		status = TT4_WriteEmail ( pEmailStruct );
+		if(status == SUCCESS)
+		{
+			HAL_UART_Transmit(&huart1,( uint8_t * )"NFC Email Write Done\r\n",sizeof("NFC Email Write Done\r\n"),10);
+			snprintf(str_email,700,"Email Addr 	: %s \r\nSubject 	: %s \r\nMessage 	: %s\r\n",pEmailStruct->EmailAdd,pEmailStruct->Subject,pEmailStruct->Message);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_email,sizeof(str_email),100);
+		}
+		if(status != SUCCESS)
+		{
+			Error_Handler();
+		}
+
+		flag_Email=0;
+	}
+}
+
+static void EMAILread_demo(void)
+{
+	if(flag_R_Email)
+	{
+
+		uint16_t status = ERROR;
+		sEmailInfo EmailStruct;
+		sEmailInfo *pEmailStruct;
+		pEmailStruct = &EmailStruct;
+
+		HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143 NFC Email Read Mode \r\n",sizeof("\033\143 NFC Email Read Mode \r\n"),10);
+
+		status = TT4_ReadEmail ( pEmailStruct );
+		if(status == SUCCESS)
+		{
+			HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143 NFC Email Read Done \r\n",sizeof("\033\143 NFC Email Read Done \r\n"),10);
+			snprintf(str_email,700,"Email Addr 	: %s \r\nSubject 	: %s \r\nMessage 	: %s\r\n",pEmailStruct->EmailAdd,pEmailStruct->Subject,pEmailStruct->Message);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_email,sizeof(str_email),10);
+		}
+
+		flag_R_Email=0;
+	}
+}
+
+/******************************************************************** END **************************************************************/
+/************************************* URI API ******************************************/
+static void URIwrite_demo(void)
+{
+	if(flag_URL)
+	{
+		sURI_Info URI;
+		HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143NFC URL Write Mode\r\n",sizeof("\033\143NFC URL Write Mode\r\n"),10);
+		strcpy(URI.protocol,URI_ID_0x01_STRING);
+		strcpy(URI.URI_Message,"einfochips.com");
+		strcpy(URI.Information,"\0");
+		while (TT4_WriteURI(&URI) != SUCCESS);
+		HAL_UART_Transmit_IT(&huart1,( uint8_t * )"NFC URL Write Done\r\n",sizeof("NFC URL Write Done\r\n"));
+		snprintf(str_url,300,"URL : %s \r\n",URI.URI_Message);
+		HAL_UART_Transmit(&huart1,( uint8_t * )str_url,sizeof(str_url),10);
+		memset(str_url, 0, sizeof(str_url));
+		flag_URL = 0;
+	}
+
+
+}
+
+static void URIread_demo(void)
+{
+
+	if(flag_R_URL)
+	{
+		HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143NFC URL Read Mode\r\n",sizeof("\033\143NFC URL Read Mode\r\n"),10);
+		uint16_t status = ERROR;
+		sURI_Info URI;
+		sURI_Info *pURI;
+		pURI=&URI;
+
+		status = TT4_ReadURI(&URI);
+
+		if(status == SUCCESS)
+		{
+			HAL_UART_Transmit(&huart1,( uint8_t * )"NFC URL Read Done\r\n",sizeof("NFC URL Read Done\r\n"),10);
+			snprintf(str_url,300,"URL : %s \r\n",pURI->URI_Message);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_url,sizeof(str_url),10);
+		}
+		flag_R_URL = 0;
+	}
+
+}
+
+/******************************************************************** END **************************************************************/
+
+/************************************* Vcard API ******************************************/
+
+static void Vcardwrite_demo2(void)
+{
+	if(flag_Vcard)
+	{
+		uint16_t status = ERROR;
+		sVcardInfo VcardStruct;
+		sVcardInfo *pVcardStruct;
+
+		pVcardStruct = &VcardStruct;
+
+		memcpy(pVcardStruct->FirstName, FirstName, strlen(FirstName)+1);
+		memcpy(pVcardStruct->Title, Title, strlen(Title)+1);
+		memcpy(pVcardStruct->Org, Org, strlen(Org)+1);
+		memcpy(pVcardStruct->HomeAddress, HomeAddress, strlen(HomeAddress)+1);
+		memcpy(pVcardStruct->WorkAddress, WorkAddress, strlen(WorkAddress)+1);
+		memcpy(pVcardStruct->HomeTel, HomeTel, strlen(HomeTel)+1);
+		memcpy(pVcardStruct->WorkTel, WorkTel, strlen(WorkTel)+1);
+		memcpy(pVcardStruct->CellTel, CellTel, strlen(CellTel)+1);
+		memcpy(pVcardStruct->HomeEmail, HomeEmail, strlen(HomeEmail)+1);
+		memcpy(pVcardStruct->WorkEmail, WorkEmail, strlen(WorkEmail)+1);
+
+		HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143 NFC VCARD Write Mode\r",sizeof("\033\143 NFC VCARD Write Mode\r"),10);
+		status = TT4_WriteVcard ( &VcardStruct );
+
+		if(status != SUCCESS)
+		{
+			Error_Handler();
+		}
+		if(status == SUCCESS)
+		{
+			HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143 NFC VCARD Write Done\r",sizeof("\033\143 NFC VCARD Write Done\r"),10);
+			snprintf(str_Vcard,1000,"Name		: %s \r\nTitle		: %s \r\nOrg		: %s\r\nHomeAddress 	: %s\r\nHomeTel 	: %s\r\nWorkTel 	: %s\r\nCellTel 	: %s\r\nHomeEmai 	: %s\r\nHomeEmai 	: %s\r\n",pVcardStruct->FirstName,pVcardStruct->Title,pVcardStruct->Org,pVcardStruct->HomeAddress,pVcardStruct->HomeTel,pVcardStruct->WorkTel,pVcardStruct->CellTel,pVcardStruct->HomeEmail,pVcardStruct->WorkEmail);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_Vcard,sizeof(str_Vcard),100);
+		}
+
+		flag_Vcard=0;
+	}
+
+}
+
+
+static void Vcardread_demo2(void)
+{
+	if(flag_R_Vcard)
+	{
+		uint16_t status = ERROR;
+		sVcardInfo VcardStruct;
+		sVcardInfo *pVcardStruct;
+
+		pVcardStruct = &VcardStruct;
+
+		HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143NFC Vcard Read Mode \r\n",sizeof("\033\143 NFC Vcard Read Mode \r\n"),10);
+
+		status = TT4_ReadVcard ( &VcardStruct );
+		if(status == SUCCESS)
+		{
+			snprintf(str_Vcard,1000,"Name		: %s \r\nTitle		: %s \r\nOrg		: %s\r\nHomeAddress 	: %s\r\nHomeTel 	: %s\r\nWorkTel 	: %s\r\nCellTel 	: %s\r\nHomeEmai 	: %s\r\nHomeEmai 	: %s\r\n",pVcardStruct->FirstName,pVcardStruct->Title,pVcardStruct->Org,pVcardStruct->HomeAddress,pVcardStruct->HomeTel,pVcardStruct->WorkTel,pVcardStruct->CellTel,pVcardStruct->HomeEmail,pVcardStruct->WorkEmail);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_Vcard,sizeof(str_Vcard),100);
+		}
+
+		flag_R_Vcard = 0;
+	}
+
+}
+
+/******************************************************************** END **************************************************************/
+
+/************************************* SMS API ******************************************/
+static void SMSwrite_demo(void)
+{
+	if(flag_sms)
+	{
+		uint16_t status = ERROR;
+		sSMSInfo SMSStruct;
+		sSMSInfo *pSMSStruct;
+
+		pSMSStruct = &SMSStruct;
+		HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143 NFC SMS Write Mode\r",sizeof("\033\143 NFC SMS Read Mode\r"),10);
+
+		memcpy(pSMSStruct->PhoneNumber, PhoneNumber, strlen(PhoneNumber)+1);
+		memcpy(pSMSStruct->Message, Message, strlen(Message)+1);
+		memcpy(pSMSStruct->Information, Instruction, strlen(Instruction)+1);
+
+		status = TT4_WriteSMS ( pSMSStruct );
+
+		if(status != SUCCESS)
+		{
+			Error_Handler();
+		}
+		if(status == SUCCESS)
+		{
+			HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143 NFC SMS Read Done\r\n",sizeof("\033\143 NFC SMS Read Done\r\n"),10);
+			snprintf(str_sms,1000,"PhoneNumber 	:  %s \r\nMessage 		:  %s \r\nInformation 	: %s\r\n",pSMSStruct->PhoneNumber,pSMSStruct->Message,pSMSStruct->Information);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_sms,sizeof(str_sms),100);
+		}
+
+		flag_R_sms = 0;
+	}
+}
+
+static void SMSread_demo(void)
+{
+	if(flag_R_sms)
+	{
+		uint16_t status = ERROR;
+		sSMSInfo SMSStruct;
+		sSMSInfo *pSMSStruct;
+
+		pSMSStruct = &SMSStruct;
+		HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143 NFC SMS Read Mode\r\n",sizeof("\033\143 NFC SMS Read Mode\r\n"),10);
+		status = TT4_ReadSMS ( pSMSStruct );
+		printf("check : %d\n",status);
+		if(status == SUCCESS)
+		{
+			HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143 NFC SMS Read Done\r\n",sizeof("\033\143 NFC SMS Read Done\r\n"),10);
+			snprintf(str_sms,1000,"PhoneNumber 	:  %s \r\nMessage 		:  %s \r\nInformation 	: %s\r\n",pSMSStruct->PhoneNumber,pSMSStruct->Message,pSMSStruct->Information);
+			HAL_UART_Transmit(&huart1,( uint8_t * )str_sms,sizeof(str_sms),100);
+		}
+
+		flag_R_sms = 0;
+	}
+
+}
+/******************************************************************** END **************************************************************/
+/***************************** Android Application Record *******************************/
+static void AARwrite_demo(void)
+{
+	if(flag_aar)
+	{
+		uint16_t status = ERROR;
+		uint8_t NULL_NDEF[2] = {0,0};
+		sAARInfo AAR_struct;
+		sAARInfo *pAAR;
+
+		pAAR = &AAR_struct;
+		HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143 NFC AAR Write Mode\r\n",sizeof("\033\143 NFC AAR Read Mode\r\n"),10);
+		TT4_WriteNDEF(NULL_NDEF);
+		memcpy(pAAR->PakageName, "com.stm.bluetoothlevalidation", strlen("com.stm.bluetoothlevalidation")+1);
+
+		status = TT4_AddAAR(pAAR);
+
+		if(status != SUCCESS)
+		{
+			Error_Handler();
+		}
+		flag_aar = 0;
+	}
+
+}
+
+/******************************************************************** END **************************************************************/
 
 /********************************** Test of VL53L0X proximity sensor *********************************************************************/
 
@@ -252,7 +631,7 @@ static void VL53L0X_PROXIMITY_MspInit(void)
   HAL_Delay(1000);
 
 }
-/***************************************888888888888888888*********** END **************************************************************/
+/******************************************************************** END **************************************************************/
 /************************************** This function use for extracting Temperature data **********************************************/
 void f_Temperature(void)
 {
@@ -418,7 +797,7 @@ void f_cur_mov(void)
 {
 	f_INT_count++;
 
-	if(f_INT_count <= 7)
+	if(f_INT_count <= 16)
 	{
 		HAL_UART_Transmit(&huart1,com_dn,sizeof(com_dn),10);
 	}
@@ -464,13 +843,87 @@ void f_cur_sel(void)
 		case 6:
 		{
 			s_case = f_Six;
+			break;
 		}
 		case 7:
 		{
 			s_case = f_Seven;
+			break;
+		}
+		case 8:
+		{
+			s_case	= f_Eight;
+			break;
+		}
+		case 9:
+		{
+			s_case	= f_Nine;
+			break;
+		}
+		case 10:
+		{
+
+			s_case	= f_a;
+			s_case = f_A;
+			break;
+		}
+		case 11:
+		{
+			s_case	= f_b;
+			s_case = f_B;
+			break;
+
+		}
+		case 12:
+		{
+			s_case	= f_c;
+			s_case = f_C;
+			break;
+
+		}
+		case 13:
+		{
+			s_case	= f_d;
+			s_case = f_D;
+			break;
+
+		}
+		case 14:
+		{
+			s_case	= f_e;
+			s_case = f_E;
+			break;
+
+		}
+		case 15:
+		{
+			s_case	= f_f;
+			s_case = f_F;
+			break;
+
+		}
+		case 16:
+		{
+			s_case	= f_g;
+			s_case = f_G;
+			break;
+
 		}
 
+
+
 	}
+}
+/*********************************************************** END **************************************************************************/
+/****************************************** This function use for Printing MENU ***********************************************************/
+int f_Menu(void)
+{
+	HAL_UART_Transmit(&huart1,msg3,sizeof(msg3),100);
+	f_INT_count=1;
+	sw_flag = 1;
+	s_case = 0;
+
+	return 0;
 }
 /*********************************************************** END **************************************************************************/
 
@@ -540,7 +993,6 @@ int f_Switch(void)
 		  {
 				printf("double tap\n");
 				s_case = f_escape;
-
 		  }
 
 	  f_tapCounter = 0;
@@ -552,17 +1004,6 @@ int f_Switch(void)
 }
 /*********************************************************** END **************************************************************************/
 
-/****************************************** This function use for Printing MENU ***********************************************************/
-int f_Menu(void)
-{
-	HAL_UART_Transmit(&huart1,msg3,sizeof(msg3),100);
-	f_INT_count=1;
-	sw_flag = 1;
-	s_case = 0;
-
-	return 0;
-}
-/*********************************************************** END **************************************************************************/
 
 /******************************************** This function use for Printing Invalid ******************************************************/
 int f_Invalid(void)
@@ -577,6 +1018,7 @@ int f_Invalid(void)
 return 0;
 }
 /*********************************************************** END **************************************************************************/
+
 
 /* USER CODE END 0 */
 
@@ -629,7 +1071,7 @@ int main(void)
 	BSP_GYRO_Init();
 	BSP_MAGNETO_Init();
 	VL53L0X_PROXIMITY_Init();
-
+	while (TT4_Init() != SUCCESS);
 
 	HAL_UART_Transmit(&huart1,msg1,sizeof(msg1),1000);
 	HAL_UART_Transmit(&huart1,msg2,sizeof(msg2),1000);
@@ -637,7 +1079,6 @@ int main(void)
 	s_case = f_escape;
 
 	HAL_UART_Receive_IT(&huart1,rxData,1);
-
 
   /* USER CODE END 2 */
 
@@ -723,6 +1164,119 @@ int main(void)
 				Proximity_Test();
 				break;
 			}
+			case f_Eight:
+			{
+				sw_flag=0;
+				NFC_examples[0].DemoFunc();
+				s_case=0;
+				break;
+			}
+			case f_Nine:
+			{
+				sw_flag=0;
+				NFC_examples[1].DemoFunc();
+				s_case=0;
+				break;
+			}
+			case f_a :
+			{
+				sw_flag=0;
+				NFC_examples[2].DemoFunc();
+				s_case=0;
+				break;
+			}
+			case f_A :
+			{
+				sw_flag=0;
+				NFC_examples[2].DemoFunc();
+				s_case=0;
+				break;
+			}
+			case f_b :
+			{
+				sw_flag=0;
+				NFC_examples[3].DemoFunc();
+				s_case=0;
+				break;
+			}
+			case f_B :
+			{
+				sw_flag=0;
+				NFC_examples[3].DemoFunc();
+				s_case=0;
+				break;
+			}
+			case f_c :
+			{
+				sw_flag=0;
+				NFC_examples[4].DemoFunc();
+				s_case=0;
+				break;
+			}
+			case f_C :
+			{
+				sw_flag=0;
+				NFC_examples[4].DemoFunc();
+				s_case=0;
+				break;
+			}
+			case f_d :
+			{
+				sw_flag=0;
+				NFC_examples[5].DemoFunc();
+				s_case=0;
+				break;
+			}
+			case f_D :
+			{
+				sw_flag=0;
+				NFC_examples[5].DemoFunc();
+				s_case=0;
+				break;
+			}
+			case f_e :
+			{
+				sw_flag=0;
+				NFC_examples[6].DemoFunc();
+				s_case=0;
+				break;
+			}
+			case f_E :
+			{
+				sw_flag=0;
+				NFC_examples[6].DemoFunc();
+				s_case=0;
+				break;
+			}
+			case f_f :
+			{
+				sw_flag=0;
+				NFC_examples[7].DemoFunc();
+				s_case=0;
+				break;
+			}
+			case f_F :
+			{
+				sw_flag=0;
+				NFC_examples[7].DemoFunc();
+				s_case=0;
+				break;
+			}
+			case f_g :
+			{
+				sw_flag=0;;
+				NFC_examples[8].DemoFunc();
+				s_case=0;
+				break;
+			}
+			case f_G :
+			{
+				sw_flag=0;
+				NFC_examples[8].DemoFunc();
+				s_case=0;
+				break;
+			}
+
 			case f_escape:
 			{
 				sw_flag=0;
@@ -1227,18 +1781,33 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   // Check the timer triggered this callback
 	if(htim -> Instance == TIM16)
 	{
-		flag_temp  = 1;							//checking the timer callback
-		flag_humi  = 1;
-		flag_pre   = 1;
-		flag_acce  = 1;
-		flag_gyro  = 1;
-		flag_mag   = 1;
-		flag_pro   = 1;
-		flag_error = 1;
+		flag_temp  		= 1;							//checking the timer callback
+		flag_humi  		= 1;
+		flag_pre   		= 1;
+		flag_acce  		= 1;
+		flag_gyro  		= 1;
+		flag_mag   		= 1;
+		flag_pro   		= 1;
+		flag_Email 		= 1;
+		flag_R_Email 	= 1;
+		flag_Vcard		= 1;
+		flag_R_Vcard	= 1;
+		flag_URL		= 1;
+		flag_R_URL		= 1;
+		flag_aar		= 1;
+		flag_sms		= 1;
+		flag_R_sms		= 1;
+		flag_error 		= 1;
 	}
 }
 
-
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  if(GPIO_Pin == NFC_GPIO_GPO_PIN)
+  {
+    M24SR_GPO_Callback();
+  }
+}
 /* USER CODE END 4 */
 
 /**
@@ -1252,7 +1821,10 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
+	  //s_case = f_escape;
+	  //f_Switch();
   }
+  //HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143 NFC Error\r\n",sizeof("\033\143 NFC Error\r\n"),10);
   /* USER CODE END Error_Handler_Debug */
 }
 

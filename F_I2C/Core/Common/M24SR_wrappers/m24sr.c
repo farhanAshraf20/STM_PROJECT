@@ -667,7 +667,7 @@ uint16_t M24SR_SelectApplication (uint16_t DeviceAddr)
   memcpy(Command.Body.pData, pData, uLc);
   /* copy the number of byte to read */
   Command.Body.LE = uLe ;
-  /* build the I²C command */
+  /* build the Iï¿½C command */
   M24SR_BuildIBlockCommand ( M24SR_CMDSTRUCT_SELECTAPPLICATION,  Command, &NbByte , pBuffer);
   
   /* send the request */ 
@@ -718,7 +718,7 @@ uint16_t M24SR_SelectCCfile (uint16_t DeviceAddr)
   /* copy the File Id */
   Command.Body.pData[0] = GETMSB  (uNbFileId ) ;
   Command.Body.pData[1] = GETLSB  (uNbFileId ) ;
-  /* build the I²C command */
+  /* build the Iï¿½C command */
   M24SR_BuildIBlockCommand ( M24SR_CMDSTRUCT_SELECTCCFILE,  Command, &NbByte , pBuffer);
   
   /* send the request */ 
@@ -769,7 +769,7 @@ uint16_t M24SR_SelectSystemfile (uint16_t DeviceAddr)
   /* copy the File Id */
   Command.Body.pData[0] = GETMSB  (uNbFileId ) ;
   Command.Body.pData[1] = GETLSB  (uNbFileId ) ;
-  /* build the I²C command */
+  /* build the Iï¿½C command */
   M24SR_BuildIBlockCommand ( M24SR_CMDSTRUCT_SELECTCCFILE,  Command, &NbByte , pBuffer);
   
   /* send the request */ 
@@ -820,7 +820,7 @@ uint16_t M24SR_SelectNDEFfile (uint16_t DeviceAddr, uint16_t NDEFfileId)
   /* copy the offset */
   Command.Body.pData[0] = GETMSB  (NDEFfileId ) ;
   Command.Body.pData[1] = GETLSB  (NDEFfileId ) ;
-  /* build the I²C command */
+  /* build the Iï¿½C command */
   M24SR_BuildIBlockCommand ( M24SR_CMDSTRUCT_SELECTNDEFFILE,  Command, &NbByte , pBuffer);
   
   /* send the request */ 
@@ -1042,12 +1042,12 @@ uint16_t M24SR_Verify (uint16_t DeviceAddr, uint16_t uPwdId, uint8_t NbPwdByte ,
   {
     /* copy the password */
     memcpy(Command.Body.pData, pPwd, NbPwdByte);
-    /* build the I²C command */
+    /* build the Iï¿½C command */
     M24SR_BuildIBlockCommand ( M24SR_CMDSTRUCT_VERIFYBINARYWITHPWD,  Command, &NbByte , pBuffer);
   }
   else 
   {
-    /* build the I²C command */
+    /* build the Iï¿½C command */
     M24SR_BuildIBlockCommand ( M24SR_CMDSTRUCT_VERIFYBINARYWOPWD,  Command, &NbByte , pBuffer);
   }
   
@@ -1105,7 +1105,7 @@ uint16_t M24SR_ChangeReferenceData (uint16_t DeviceAddr, uint16_t uPwdId, uint8_
   Command.Body.LC = M24SR_PASSWORD_NBBYTE ;
   /* copy the password */
   memcpy(Command.Body.pData, pPwd, M24SR_PASSWORD_NBBYTE);
-  /* build the I²C command */
+  /* build the Iï¿½C command */
   M24SR_BuildIBlockCommand ( M24SR_CMDSTRUCT_CHANGEREFDATA,  Command, &NbByte , pBuffer);
   
   
@@ -1157,7 +1157,7 @@ uint16_t M24SR_EnableVerificationRequirement (uint16_t DeviceAddr, uint16_t uRea
   /* copy the Password Id */
   Command.Header.P1 = GETMSB  (uReadOrWrite ) ;
   Command.Header.P2 = GETLSB  (uReadOrWrite ) ;
-  /* build the I²C command */
+  /* build the Iï¿½C command */
   M24SR_BuildIBlockCommand ( M24SR_CMDSTRUCT_ENABLEVERIFREQ,  Command, &NbByte , pBuffer);
   
   /* send the request */ 
@@ -1209,7 +1209,7 @@ uint16_t M24SR_DisableVerificationRequirement (uint16_t DeviceAddr, uint16_t uRe
   /* copy the Password Id */
   Command.Header.P1 = GETMSB  (uReadOrWrite ) ;
   Command.Header.P2 = GETLSB  (uReadOrWrite ) ;
-  /* build the I²C command */
+  /* build the Iï¿½C command */
   M24SR_BuildIBlockCommand ( M24SR_CMDSTRUCT_DISABLEVERIFREQ,  Command, &NbByte , pBuffer);
   
   /* send the request */ 
@@ -1261,7 +1261,7 @@ uint16_t M24SR_EnablePermanentState (uint16_t DeviceAddr, uint16_t uReadOrWrite 
   /* copy the Password Id */
   Command.Header.P1 = GETMSB  (uReadOrWrite ) ;
   Command.Header.P2 = GETLSB  (uReadOrWrite ) ;
-  /* build the I²C command */
+  /* build the Iï¿½C command */
   M24SR_BuildIBlockCommand ( M24SR_CMDSTRUCT_ENABLEVERIFREQ,  Command, &NbByte , pBuffer);
   
   /* send the request */ 
@@ -1312,7 +1312,7 @@ uint16_t M24SR_DisablePermanentState (uint16_t DeviceAddr, uint16_t uReadOrWrite
   /* copy the Password Id */
   Command.Header.P1 = GETMSB  (uReadOrWrite ) ;
   Command.Header.P2 = GETLSB  (uReadOrWrite ) ;
-  /* build the I²C command */
+  /* build the Iï¿½C command */
   M24SR_BuildIBlockCommand ( M24SR_CMDSTRUCT_DISABLEVERIFREQ,  Command, &NbByte , pBuffer);
   
   /* send the request */ 
@@ -1359,7 +1359,7 @@ uint16_t M24SR_SendInterrupt (uint16_t DeviceAddr)
   Command.Header.P1 = GETMSB  (uP1P2 ) ;
   Command.Header.P2 = GETLSB  (uP1P2 ) ;
   Command.Body.LC = 0x00 ;
-  /* build the I²C command */
+  /* build the Iï¿½C command */
   M24SR_BuildIBlockCommand ( M24SR_CMDSTRUCT_SENDINTERRUPT,  Command, &NbByte , pBuffer);
   
   /* send the request */ 
@@ -1416,7 +1416,7 @@ uint16_t M24SR_StateControl (uint16_t DeviceAddr, uint8_t uSetOrReset )
   /* copy the data */
   memcpy(Command.Body.pData , &uSetOrReset, 0x01 );
   //Command.Body.LE = 0x00 ;
-  /* build the I²C command */
+  /* build the Iï¿½C command */
   M24SR_BuildIBlockCommand ( M24SR_CMDSTRUCT_GPOSTATE,  Command, &NbByte , pBuffer);
   
   /* send the request */ 
@@ -1453,25 +1453,25 @@ uint16_t M24SR_ManageI2CGPO(uint16_t DeviceAddr, uint8_t GPO_I2Cconfig)
   uint8_t GPO_config;
   uint8_t DefaultPassword[16]={0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-  
+
   if( GPO_I2Cconfig > STATE_CONTROL)
-  {  
+  {
     return M24SR_ERROR_PARAMETER;
   }
-  
+
   /* we must not be in interrupt mode for I2C synchro as we will change GPO purpose */
   M24SR_SetI2CSynchroMode(M24SR_WAITINGTIME_POLLING);
-  
+
   M24SR_SelectApplication(DeviceAddr);
   M24SR_SelectSystemfile(DeviceAddr);
   M24SR_ReadBinary (DeviceAddr, 0x0004 , 0x01 , &GPO_config );
-  
-  /* Update only GPO purpose for I2C */  
+
+  /* Update only GPO purpose for I2C */
   GPO_config = (GPO_config & 0xF0) | GPO_I2Cconfig;
   M24SR_SelectSystemfile(DeviceAddr);
   M24SR_Verify(DeviceAddr, M24SR_I2C_PWD ,0x10 ,DefaultPassword );
   status = M24SR_UpdateBinary (DeviceAddr, 0x0004 ,0x01, &(GPO_config) );
-  
+
   /* if we have set interrupt mode for I2C synchro we can enable interrupt mode */
   if (GPO_I2Cconfig == I2C_ANSWER_READY && status == M24SR_ACTION_COMPLETED)
   {

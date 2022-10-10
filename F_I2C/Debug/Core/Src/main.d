@@ -29,7 +29,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim_ex.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h \
- C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01.h \
+ C:/Ashraf_MCU/F_I2C/Drivers/BSP/STM32L475x_IoT_Discovery/stm32l475e_iot01.h \
  C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_tsensor.h \
  C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01.h \
  c:\ashraf_mcu\f_i2c\drivers\bsp\components\hts221\hts221.h \
@@ -58,7 +58,18 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_def.h \
  C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_platform.h \
  C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_platform_log.h \
- C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_tof.h
+ C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_tof.h \
+ C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_TT4_interface.h \
+ C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_NDEF_URI.h \
+ C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_NDEF.h \
+ C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_NDEF_SMS.h \
+ C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_NDEF_Email.h \
+ C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_NDEF_Vcard.h \
+ C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_NDEF_Geo.h \
+ C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_NDEF_MyApp.h \
+ C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_NDEF_AAR.h \
+ C:/Ashraf_MCU/F_I2C/Core/Common/M24SR_wrappers/m24sr.h \
+ C:/Ashraf_MCU/F_I2C/Core/Common/M24SR_wrappers/VcardCSL1.h
 
 ../Core/Inc/main.h:
 
@@ -122,7 +133,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h:
 
-C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01.h:
+C:/Ashraf_MCU/F_I2C/Drivers/BSP/STM32L475x_IoT_Discovery/stm32l475e_iot01.h:
 
 C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/stm32l475e_iot01_tsensor.h:
 
@@ -181,3 +192,25 @@ C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_platform.h:
 C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_platform_log.h:
 
 C:/Ashraf_MCU/F_I2C/Drivers/BSP/B-L475E-IOT01/vl53l0x/vl53l0x_tof.h:
+
+C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_TT4_interface.h:
+
+C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_NDEF_URI.h:
+
+C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_NDEF.h:
+
+C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_NDEF_SMS.h:
+
+C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_NDEF_Email.h:
+
+C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_NDEF_Vcard.h:
+
+C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_NDEF_Geo.h:
+
+C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_NDEF_MyApp.h:
+
+C:/Ashraf_MCU/F_I2C/Core/Common/NDEF_TagType4_lib/lib_NDEF_AAR.h:
+
+C:/Ashraf_MCU/F_I2C/Core/Common/M24SR_wrappers/m24sr.h:
+
+C:/Ashraf_MCU/F_I2C/Core/Common/M24SR_wrappers/VcardCSL1.h:

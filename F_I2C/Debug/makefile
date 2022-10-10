@@ -18,7 +18,6 @@ RM := rm -rf
 -include Drivers/BSP/Components/st25dv/subdir.mk
 -include Drivers/BSP/Components/ov9655/subdir.mk
 -include Drivers/BSP/Components/mfxstm32l152/subdir.mk
--include Drivers/BSP/Components/m24sr/subdir.mk
 -include Drivers/BSP/Components/lsm6dsl/subdir.mk
 -include Drivers/BSP/Components/lsm303dlhc/subdir.mk
 -include Drivers/BSP/Components/lsm303c/subdir.mk
@@ -39,6 +38,8 @@ RM := rm -rf
 -include Drivers/BSP/B-L475E-IOT01/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
+-include Core/Common/NDEF_TagType4_lib/subdir.mk
+-include Core/Common/M24SR_wrappers/subdir.mk
 -include subdir.mk
 -include objects.mk
 

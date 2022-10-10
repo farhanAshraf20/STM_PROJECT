@@ -1,0 +1,4 @@
+lib_NDEF_URI.c:48:13:NDEF_Parse_WellKnowType	32	static
+lib_NDEF_URI.c:270:10:NDEF_ReadURI	40	static
+lib_NDEF_URI.c:319:10:NDEF_WriteURI	48	static
+lib_NDEF_URI.c:474:6:getUriType	16	static

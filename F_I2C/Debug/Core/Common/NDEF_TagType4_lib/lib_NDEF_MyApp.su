@@ -1,0 +1,3 @@
+lib_NDEF_MyApp.c:50:13:NDEF_Extract_M24SRDiscoveryApp_Input	32	static
+lib_NDEF_MyApp.c:121:10:NDEF_ReadMyApp	24	static
+lib_NDEF_MyApp.c:145:10:NDEF_WriteMyApp	40	static

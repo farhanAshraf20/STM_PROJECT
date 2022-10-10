@@ -1,0 +1,4 @@
+lib_NDEF_Vcard.c:54:13:NDEF_FillVcardStruct	40	static
+lib_NDEF_Vcard.c:100:13:NDEF_ExtractVcard	32	static
+lib_NDEF_Vcard.c:153:10:NDEF_ReadVcard	24	static
+lib_NDEF_Vcard.c:172:10:NDEF_WriteVcard	40	static

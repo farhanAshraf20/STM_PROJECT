@@ -20,6 +20,8 @@ OBJCOPY_BIN :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+Core/Common/M24SR_wrappers \
+Core/Common/NDEF_TagType4_lib \
 Core/Src \
 Core/Startup \
 Drivers/BSP/B-L475E-IOT01 \
@@ -40,7 +42,6 @@ Drivers/BSP/Components/ls016b8uy \
 Drivers/BSP/Components/lsm303c \
 Drivers/BSP/Components/lsm303dlhc \
 Drivers/BSP/Components/lsm6dsl \
-Drivers/BSP/Components/m24sr \
 Drivers/BSP/Components/mfxstm32l152 \
 Drivers/BSP/Components/ov9655 \
 Drivers/BSP/Components/st25dv \

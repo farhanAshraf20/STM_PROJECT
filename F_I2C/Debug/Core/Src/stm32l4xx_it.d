@@ -29,7 +29,8 @@ Core/Src/stm32l4xx_it.o: ../Core/Src/stm32l4xx_it.c ../Core/Inc/main.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_tim_ex.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h \
- ../Core/Inc/stm32l4xx_it.h
+ ../Core/Inc/stm32l4xx_it.h \
+ C:/Ashraf_MCU/F_I2C/Drivers/BSP/STM32L475x_IoT_Discovery/stm32l475e_iot01.h
 
 ../Core/Inc/main.h:
 
@@ -94,3 +95,5 @@ Core/Src/stm32l4xx_it.o: ../Core/Src/stm32l4xx_it.c ../Core/Inc/main.h \
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h:
 
 ../Core/Inc/stm32l4xx_it.h:
+
+C:/Ashraf_MCU/F_I2C/Drivers/BSP/STM32L475x_IoT_Discovery/stm32l475e_iot01.h:

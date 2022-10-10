@@ -1,0 +1,11 @@
+lib_NDEF.c:72:17:NDEF_IsNDEFPresent	16	static
+lib_NDEF.c:93:17:NDEF_IdentifySPRecord	32	static
+lib_NDEF.c:171:17:NDEF_ParseRecordHeader	24	static
+lib_NDEF.c:202:13:NDEF_ParseWellKnownType	24	static
+lib_NDEF.c:255:13:NDEF_ParseMediaType	16	static
+lib_NDEF.c:270:13:NDEF_ParseForumExternalType	16	static
+lib_NDEF.c:283:13:NDEF_ParseURI	24	static
+lib_NDEF.c:308:13:NDEF_ParseSP	40	static
+lib_NDEF.c:368:10:NDEF_IdentifyNDEF	32	static
+lib_NDEF.c:471:10:NDEF_ReadNDEF	24	static
+lib_NDEF.c:499:10:NDEF_WriteNDEF	24	static

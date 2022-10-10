@@ -81,7 +81,7 @@ const uint16_t COM_TX_AF[COMn] = {DISCOVERY_COM1_TX_AF};
 const uint16_t COM_RX_AF[COMn] = {DISCOVERY_COM1_RX_AF};
 
 I2C_HandleTypeDef hI2cHandler;
-UART_HandleTypeDef hDiscoUart;
+
 
 /**
   * @}
@@ -129,10 +129,10 @@ void     NFC_IO_Delay(uint32_t Delay);
   * @brief  This method returns the STM32L475E IOT01 BSP Driver revision
   * @retval version  0xXYZR (8bits for each decimal, R for RC)
   */
-uint32_t BSP_GetVersion(void)
+/*uint32_t BSP_GetVersion(void)
 {
   return __STM32L475E_IOT01_BSP_VERSION;
-}
+}*/
 
 /**
   * @brief  Initializes LED GPIO.
@@ -140,12 +140,13 @@ uint32_t BSP_GetVersion(void)
   *              This parameter can be one of the following values:
   *                @arg  LED2
   */
+/*
 void BSP_LED_Init(Led_TypeDef Led)
 {
   GPIO_InitTypeDef  gpio_init_structure;
   
   LEDx_GPIO_CLK_ENABLE(Led);
-  /* Configure the GPIO_LED pin */
+   Configure the GPIO_LED pin
   gpio_init_structure.Pin   = GPIO_PIN[Led];
   gpio_init_structure.Mode  = GPIO_MODE_OUTPUT_PP;
   gpio_init_structure.Pull  = GPIO_NOPULL;
@@ -153,6 +154,7 @@ void BSP_LED_Init(Led_TypeDef Led)
   
   HAL_GPIO_Init(GPIO_PORT[Led], &gpio_init_structure);
 }
+*/
 
 /**
   * @brief  DeInitializes LED GPIO.
@@ -160,17 +162,17 @@ void BSP_LED_Init(Led_TypeDef Led)
   *              This parameter can be one of the following values:
   *                @arg  LED2
   */
-void BSP_LED_DeInit(Led_TypeDef Led)
+/*void BSP_LED_DeInit(Led_TypeDef Led)
 {
   GPIO_InitTypeDef  gpio_init_structure;
   
-  /* DeInit the GPIO_LED pin */
+   DeInit the GPIO_LED pin
   gpio_init_structure.Pin = GPIO_PIN[Led];
   
-  /* Turn off LED */
+   Turn off LED
   HAL_GPIO_WritePin(GPIO_PORT[Led], GPIO_PIN[Led], GPIO_PIN_RESET);
   HAL_GPIO_DeInit(GPIO_PORT[Led], gpio_init_structure.Pin);
-}
+}*/
 
 /**
   * @brief  Turns the selected LED On.
@@ -178,10 +180,10 @@ void BSP_LED_DeInit(Led_TypeDef Led)
   *              This parameter can be one of the following values:
   *                @arg  LED2
   */
-void BSP_LED_On(Led_TypeDef Led)
+/*void BSP_LED_On(Led_TypeDef Led)
 {
   HAL_GPIO_WritePin(GPIO_PORT[Led], GPIO_PIN[Led], GPIO_PIN_SET);
-}
+}*/
 
 /**
   * @brief  Turns the selected LED Off. 
@@ -189,10 +191,10 @@ void BSP_LED_On(Led_TypeDef Led)
   *              This parameter can be one of the following values:
   *                @arg  LED2
   */
-void BSP_LED_Off(Led_TypeDef Led)
+/*void BSP_LED_Off(Led_TypeDef Led)
 {
   HAL_GPIO_WritePin(GPIO_PORT[Led], GPIO_PIN[Led], GPIO_PIN_RESET);
-}
+}*/
 
 /**
   * @brief  Toggles the selected LED.
@@ -200,10 +202,10 @@ void BSP_LED_Off(Led_TypeDef Led)
   *              This parameter can be one of the following values:
   *                @arg  LED2
   */
-void BSP_LED_Toggle(Led_TypeDef Led)
+/*void BSP_LED_Toggle(Led_TypeDef Led)
 {
   HAL_GPIO_TogglePin(GPIO_PORT[Led], GPIO_PIN[Led]);
-}
+}*/
 
 /**
   * @brief  Initializes push button GPIO and EXTI Line.
@@ -216,16 +218,17 @@ void BSP_LED_Toggle(Led_TypeDef Led)
   *                      @arg  BUTTON_MODE_EXTI  Button will be connected to EXTI line 
   *                                              with interrupt generation capability  
   */
+/*
 void BSP_PB_Init(Button_TypeDef Button, ButtonMode_TypeDef ButtonMode)
 {
   GPIO_InitTypeDef gpio_init_structure;
   
-  /* Enable the BUTTON clock */
+   Enable the BUTTON clock
   USER_BUTTON_GPIO_CLK_ENABLE();
   
   if(ButtonMode == BUTTON_MODE_GPIO)
   {
-    /* Configure Button pin as input */
+     Configure Button pin as input
     gpio_init_structure.Pin = BUTTON_PIN[Button];
     gpio_init_structure.Mode = GPIO_MODE_INPUT;
     gpio_init_structure.Pull = GPIO_PULLUP;
@@ -235,7 +238,7 @@ void BSP_PB_Init(Button_TypeDef Button, ButtonMode_TypeDef ButtonMode)
   
   if(ButtonMode == BUTTON_MODE_EXTI)
   {
-    /* Configure Button pin as input with External interrupt */
+     Configure Button pin as input with External interrupt
     gpio_init_structure.Pin = BUTTON_PIN[Button];
     gpio_init_structure.Pull = GPIO_PULLUP;
     gpio_init_structure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -244,11 +247,12 @@ void BSP_PB_Init(Button_TypeDef Button, ButtonMode_TypeDef ButtonMode)
     
     HAL_GPIO_Init(BUTTON_PORT[Button], &gpio_init_structure);
     
-    /* Enable and set Button EXTI Interrupt to the lowest priority */
+     Enable and set Button EXTI Interrupt to the lowest priority
     HAL_NVIC_SetPriority((IRQn_Type)(BUTTON_IRQn[Button]), 0x0F, 0x00);
     HAL_NVIC_EnableIRQ((IRQn_Type)(BUTTON_IRQn[Button]));
   }
 }
+*/
 
 /**
   * @brief  DeInitializes push button.
@@ -257,14 +261,14 @@ void BSP_PB_Init(Button_TypeDef Button, ButtonMode_TypeDef ButtonMode)
   *                   @arg  BUTTON_USER  User Push Button 
   * @note PB DeInit does not disable the GPIO clock
   */
-void BSP_PB_DeInit(Button_TypeDef Button)
+/*void BSP_PB_DeInit(Button_TypeDef Button)
 {
   GPIO_InitTypeDef gpio_init_structure;
 
   gpio_init_structure.Pin = BUTTON_PIN[Button];
   HAL_NVIC_DisableIRQ((IRQn_Type)(BUTTON_IRQn[Button]));
   HAL_GPIO_DeInit(BUTTON_PORT[Button], gpio_init_structure.Pin);
-}
+}*/
 
 
 /**
@@ -274,10 +278,10 @@ void BSP_PB_DeInit(Button_TypeDef Button)
   *                   @arg  BUTTON_USER  User Push Button 
   * @retval The Button GPIO pin value (GPIO_PIN_RESET = button pressed)
   */
-uint32_t BSP_PB_GetState(Button_TypeDef Button)
+/*uint32_t BSP_PB_GetState(Button_TypeDef Button)
 {
   return HAL_GPIO_ReadPin(BUTTON_PORT[Button], BUTTON_PIN[Button]);
-}
+}*/
 
 /**
   * @brief  Configures COM port.
@@ -287,18 +291,19 @@ uint32_t BSP_PB_GetState(Button_TypeDef Button)
   * @param  huart  Pointer to a UART_HandleTypeDef structure that contains the
   *                configuration information for the specified USART peripheral.
   */
+/*
 void BSP_COM_Init(COM_TypeDef COM, UART_HandleTypeDef *huart)
 {
   GPIO_InitTypeDef gpio_init_structure;
 
-  /* Enable GPIO clock */
+   Enable GPIO clock
   DISCOVERY_COMx_TX_GPIO_CLK_ENABLE(COM);
   DISCOVERY_COMx_RX_GPIO_CLK_ENABLE(COM);
 
-  /* Enable USART clock */
+   Enable USART clock
   DISCOVERY_COMx_CLK_ENABLE(COM);
 
-  /* Configure USART Tx as alternate function */
+   Configure USART Tx as alternate function
   gpio_init_structure.Pin = COM_TX_PIN[COM];
   gpio_init_structure.Mode = GPIO_MODE_AF_PP;
   gpio_init_structure.Speed = GPIO_SPEED_FREQ_HIGH;
@@ -306,16 +311,17 @@ void BSP_COM_Init(COM_TypeDef COM, UART_HandleTypeDef *huart)
   gpio_init_structure.Alternate = COM_TX_AF[COM];
   HAL_GPIO_Init(COM_TX_PORT[COM], &gpio_init_structure);
 
-  /* Configure USART Rx as alternate function */
+   Configure USART Rx as alternate function
   gpio_init_structure.Pin = COM_RX_PIN[COM];
   gpio_init_structure.Mode = GPIO_MODE_AF_PP;
   gpio_init_structure.Alternate = COM_RX_AF[COM];
   HAL_GPIO_Init(COM_RX_PORT[COM], &gpio_init_structure);
 
-  /* USART configuration */
+   USART configuration
   huart->Instance = COM_USART[COM];
   HAL_UART_Init(huart);
 }
+*/
 
 /**
   * @brief  DeInitializes COM port.
@@ -325,21 +331,21 @@ void BSP_COM_Init(COM_TypeDef COM, UART_HandleTypeDef *huart)
   * @param  huart  Pointer to a UART_HandleTypeDef structure that contains the
   *                configuration information for the specified USART peripheral.
   */
-void BSP_COM_DeInit(COM_TypeDef COM, UART_HandleTypeDef *huart)
+/*void BSP_COM_DeInit(COM_TypeDef COM, UART_HandleTypeDef *huart)
 {
-  /* USART configuration */
+   USART configuration
   huart->Instance = COM_USART[COM];
   HAL_UART_DeInit(huart);
 
-  /* Enable USART clock */
+   Enable USART clock
   DISCOVERY_COMx_CLK_DISABLE(COM);
 
-  /* DeInit GPIO pins can be done in the application 
-     (by surcharging this __weak function) */
+   DeInit GPIO pins can be done in the application
+     (by surcharging this __weak function)
 
-  /* GPIO pins clock, FMC clock and DMA clock can be shut down in the application 
-     by surcharging this __weak function */ 
-}
+   GPIO pins clock, FMC clock and DMA clock can be shut down in the application
+     by surcharging this __weak function
+}*/
 
 
 /*******************************************************************************

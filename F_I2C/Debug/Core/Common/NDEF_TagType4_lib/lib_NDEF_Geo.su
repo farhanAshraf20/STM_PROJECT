@@ -1,0 +1,4 @@
+lib_NDEF_Geo.c:58:13:NDEF_FillGeoStruct	48	static
+lib_NDEF_Geo.c:113:13:NDEF_ReadURI_Geo	24	static
+lib_NDEF_Geo.c:145:10:NDEF_ReadGeo	40	static
+lib_NDEF_Geo.c:196:10:NDEF_WriteGeo	48	static
