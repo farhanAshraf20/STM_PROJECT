@@ -127,9 +127,16 @@ float pfData[3]		= {0};				// GYRO Data
 
 uint8_t msg1[] 		= "\033\143 ****** sensors values measurement ******\n\r";
 uint8_t msg2[] 		= "Initialize ALL sensors\r\n";
-uint8_t msg3[] 		= "\033\143 Please select the option \r\n 1. TEMPERATURE \r\n 2. HUMIDITY \r\n 3. PRESSURE \r\n 4. ACCELERO \r\n 5. GYRO \r\n 6. MAGNETOMETER \r\n 7. PROXIMITY \r\n 8. NFC EMAIL Write\r\n 9. NFC EMAIL Read\r\n A. NFC URI Write\r\n B. NFC URI Read\r\n C. NFC VCARD Write\r\n D. NFC VCARD Read\r\n E. NFC SMS Write\r\n F. NFC SMS Read\r\n G. AAR Write\r\n ***MENU*** \r\nPress Escape + Enter\r\033[17A";
-uint8_t com_up[]	= "\033[15A";
+uint8_t msg3[] 		= "\033\143 Please select the option \r\n 1. TEMPERATURE \r\n 2. HUMIDITY \r\n 3. PRESSURE \r\n 4. ACCELERO \r\n 5. GYRO \r\n 6. MAGNETOMETER \r\n 7. PROXIMITY \r\n 8. NFC\r\n ***MENU*** \r\nPress Escape + Enter\r\033[9A";
+uint8_t msg4[]		= "\033\143 Please select the option \r\n 1. NFC Detected \r\n 2. NFC Write \r\n 3. NFC Read \r\n ***MENU*** \r\nPress Escape + Enter\r\033[4A";
+uint8_t msg5[] 		= "\033\143 Please select the option \r\n 1. NFC EMAIL Write\r\n 2. NFC URL Write\r\n 3. NFC VCARD Write\r\n 4. NFC SMS Write\r\n 5. AAR Write\r\n ***MENU*** \r\nPress Escape + Enter\r\033[6A";
+uint8_t msg6[] 		= "\033\143 Please select the option \r\n 1. NFC EMAIL Read\r\n 2. NFC URL Read\r\n 3. NFC VCARD Read\r\n 4. NFC SMS Read\r\n ***MENU*** \r\nPress Escape + Enter\r\033[5A";
+
+uint8_t com_up[]	= "\033[7A";
 uint8_t com_dn[]	= "\033[B";
+uint8_t N_com_up[]	= "\033[3A";
+uint8_t W_com_up[]	= "\033[5A";
+uint8_t R_com_up[]	= "\033[4A";
 char Invalid[30]	= "\033\143!!..Invalid Input..!!\r\n";
 
 /******************************************************** Switch ********************************************************************/
@@ -149,6 +156,10 @@ uint8_t s_case = 0;									//Switch case input
 
 /******************************************************************** END **************************************************************/
 
+uint8_t f_Menu_flag		= 1;
+uint8_t f_NFC_flag		= 0;
+uint8_t f_NFC_W_flag	= 0;
+uint8_t f_NFC_R_flag	= 0;
 
 /************************************************ checking the timer callback **********************************************************/
 
@@ -226,24 +237,37 @@ char str_sms[300] 	= "";
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-
 static void MX_GPIO_Init(void);
-
 static void MX_USART1_UART_Init(void);
 static void MX_UART4_Init(void);
-
 static void MX_I2C2_Init(void);
-
 static void MX_TIM16_Init(void);
 static void MX_TIM17_Init(void);
 /* USER CODE BEGIN PFP */
+/************************* Sensor API Initialization *************************************/
+void Proximity_Test(void);
+void f_Temperature(void);
+void f_Humidity(void);
+void f_Pressure(void);
+void f_ACCELEROMETER(void);
+void f_GYRO(void);
+void f_MAGNETOMETERR(void);
+void f_cur_mov(void);
+void f_cur_sel(void);
+int f_Menu(void);
+int f_Switch(void);
+void f_NFC_D(void);
+void f_NFC(void);
+void f_NFC_W(void);
+void f_NFC_R(void);
+int f_Invalid(void);
 /************************* NFC API Initialization *************************************/
 
 static void EMAILwrite_demo(void);
 static void EMAILread_demo(void);
 
-static void URIwrite_demo(void);
-static void URIread_demo(void);
+static void URLwrite_demo(void);
+static void URLread_demo(void);
 
 static void Vcardwrite_demo2(void);
 static void Vcardread_demo2(void);
@@ -268,8 +292,8 @@ BSP_DemoTypedef  NFC_examples[]=
 		{EMAILwrite_demo, "EMAIL", 0},
 		{EMAILread_demo,"R_EMAIL", 1},
 
-		{URIwrite_demo,"URI", 2},
-		{URIread_demo,"R_URI", 3},
+		{URLwrite_demo,"URL", 2},
+		{URLread_demo,"R_URL", 3},
 
 		{Vcardwrite_demo2,"vCARD2", 4},
 		{Vcardread_demo2,"R_vCARD2", 5},
@@ -281,6 +305,53 @@ BSP_DemoTypedef  NFC_examples[]=
 
 	};
 /******************************************************************** END **************************************************************/
+
+/*************************************************** NFC Console UI **************************************************************/
+
+void f_NFC(void)										// NFC Operations API Name Console Print
+{
+	f_Menu_flag		= 0;
+	f_NFC_flag		= 1;
+	f_NFC_W_flag	= 0;
+	f_NFC_R_flag	= 0;
+	HAL_UART_Transmit(&huart1,msg4,sizeof(msg4),100);
+	f_INT_count=10;
+	sw_flag = 1;
+	s_case = 0;
+}
+
+void f_NFC_D(void)										// NFC Detected API Name Console Print
+{
+	HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143 NFC Detected\r\n",sizeof("\033\143 NFC Detected\r\n"),10);
+}
+
+void f_NFC_W(void)										// NFC Write API Name Console Print
+{
+	f_Menu_flag		= 0;
+	f_NFC_flag		= 0;
+	f_NFC_W_flag	= 1;
+	f_NFC_R_flag	= 0;
+	HAL_UART_Transmit(&huart1,msg5,sizeof(msg5),100);
+	f_INT_count = 15;
+	sw_flag = 1;
+	s_case = 0;
+}
+
+void f_NFC_R(void)										// NFC Read API Name Console Print
+{
+	f_Menu_flag		= 0;
+	f_NFC_flag		= 0;
+	f_NFC_W_flag	= 0;
+	f_NFC_R_flag	= 1;
+	HAL_UART_Transmit(&huart1,msg6,sizeof(msg6),100);
+	f_INT_count = 22;
+	sw_flag = 1;
+	s_case = 0;
+}
+
+/******************************************************************** END **************************************************************/
+
+/************************************* EMAIL API ******************************************/
 static void EMAILwrite_demo(void)
 {
 	if(flag_Email)
@@ -306,7 +377,12 @@ static void EMAILwrite_demo(void)
 		}
 		if(status != SUCCESS)
 		{
-			Error_Handler();
+			  //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 1);
+			  HAL_Delay(300);
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0);
+			  HAL_Delay(300);
+			//Error_Handler();
 		}
 
 		flag_Email=0;
@@ -326,11 +402,21 @@ static void EMAILread_demo(void)
 		HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143 NFC Email Read Mode \r\n",sizeof("\033\143 NFC Email Read Mode \r\n"),10);
 
 		status = TT4_ReadEmail ( pEmailStruct );
+		if(status != SUCCESS)
+		{
+			  //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14);
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 1);
+			  HAL_Delay(300);
+			  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0);
+			  HAL_Delay(300);
+		}
+		//printf("%s\n",pEmailStruct->Information);
 		if(status == SUCCESS)
 		{
 			HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143 NFC Email Read Done \r\n",sizeof("\033\143 NFC Email Read Done \r\n"),10);
 			snprintf(str_email,700,"Email Addr 	: %s \r\nSubject 	: %s \r\nMessage 	: %s\r\n",pEmailStruct->EmailAdd,pEmailStruct->Subject,pEmailStruct->Message);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_email,sizeof(str_email),10);
+
 		}
 
 		flag_R_Email=0;
@@ -338,19 +424,19 @@ static void EMAILread_demo(void)
 }
 
 /******************************************************************** END **************************************************************/
-/************************************* URI API ******************************************/
-static void URIwrite_demo(void)
+/************************************* URL API ******************************************/
+static void URLwrite_demo(void)
 {
 	if(flag_URL)
 	{
-		sURI_Info URI;
+		sURI_Info URL;
 		HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143NFC URL Write Mode\r\n",sizeof("\033\143NFC URL Write Mode\r\n"),10);
-		strcpy(URI.protocol,URI_ID_0x01_STRING);
-		strcpy(URI.URI_Message,"einfochips.com");
-		strcpy(URI.Information,"\0");
-		while (TT4_WriteURI(&URI) != SUCCESS);
+		strcpy(URL.protocol,URI_ID_0x01_STRING);
+		strcpy(URL.URI_Message,"einfochips.com");
+		strcpy(URL.Information,"\0");
+		while (TT4_WriteURI(&URL) != SUCCESS);
 		HAL_UART_Transmit_IT(&huart1,( uint8_t * )"NFC URL Write Done\r\n",sizeof("NFC URL Write Done\r\n"));
-		snprintf(str_url,300,"URL : %s \r\n",URI.URI_Message);
+		snprintf(str_url,300,"URL : %s \r\n",URL.URI_Message);
 		HAL_UART_Transmit(&huart1,( uint8_t * )str_url,sizeof(str_url),10);
 		memset(str_url, 0, sizeof(str_url));
 		flag_URL = 0;
@@ -359,23 +445,23 @@ static void URIwrite_demo(void)
 
 }
 
-static void URIread_demo(void)
+static void URLread_demo(void)
 {
 
 	if(flag_R_URL)
 	{
 		HAL_UART_Transmit(&huart1,( uint8_t * )"\033\143NFC URL Read Mode\r\n",sizeof("\033\143NFC URL Read Mode\r\n"),10);
 		uint16_t status = ERROR;
-		sURI_Info URI;
-		sURI_Info *pURI;
-		pURI=&URI;
+		sURI_Info URL;
+		sURI_Info *pURL;
+		pURL=&URL;
 
-		status = TT4_ReadURI(&URI);
+		status = TT4_ReadURI(&URL);
 
 		if(status == SUCCESS)
 		{
 			HAL_UART_Transmit(&huart1,( uint8_t * )"NFC URL Read Done\r\n",sizeof("NFC URL Read Done\r\n"),10);
-			snprintf(str_url,300,"URL : %s \r\n",pURI->URI_Message);
+			snprintf(str_url,300,"URL : %s \r\n",pURL->URI_Message);
 			HAL_UART_Transmit(&huart1,( uint8_t * )str_url,sizeof(str_url),10);
 		}
 		flag_R_URL = 0;
@@ -797,15 +883,45 @@ void f_cur_mov(void)
 {
 	f_INT_count++;
 
-	if(f_INT_count <= 16)
+	if(f_INT_count <= 8)											//Main Menu
 	{
 		HAL_UART_Transmit(&huart1,com_dn,sizeof(com_dn),10);
 	}
-	else
+	else if(f_INT_count == 9)
 	{
 		HAL_UART_Transmit(&huart1,com_up,sizeof(com_up),10);
 		f_INT_count=1;
 	}
+	else if(f_INT_count <= 13)										//NFC Menu
+	{
+		HAL_UART_Transmit(&huart1,com_dn,sizeof(com_dn),10);
+	}
+	else if(f_INT_count == 14)
+	{
+		HAL_UART_Transmit(&huart1,N_com_up,sizeof(N_com_up),10);
+		f_INT_count=10;
+	}
+	else if(f_INT_count <= 20)										//NFC Write Menu
+	{
+		HAL_UART_Transmit(&huart1,com_dn,sizeof(com_dn),10);
+	}
+	else if(f_INT_count == 21)
+	{
+		HAL_UART_Transmit(&huart1,W_com_up,sizeof(W_com_up),10);
+		f_INT_count=15;
+	}
+	else if(f_INT_count <= 26)										//NFC Read Menu
+	{
+		HAL_UART_Transmit(&huart1,com_dn,sizeof(com_dn),10);
+	}
+	else if(f_INT_count == 27)
+	{
+		HAL_UART_Transmit(&huart1,R_com_up,sizeof(R_com_up),10);
+		f_INT_count=22;
+	}
+
+
+
 
 }
 /*********************************************************** END **************************************************************************/
@@ -855,63 +971,81 @@ void f_cur_sel(void)
 			s_case	= f_Eight;
 			break;
 		}
-		case 9:
-		{
-			s_case	= f_Nine;
-			break;
-		}
 		case 10:
 		{
-
-			s_case	= f_a;
-			s_case = f_A;
+			s_case	= f_One;
 			break;
 		}
 		case 11:
 		{
-			s_case	= f_b;
-			s_case = f_B;
+			s_case =  f_Two;
 			break;
-
 		}
 		case 12:
 		{
-			s_case	= f_c;
-			s_case = f_C;
+			s_case = f_Three;
 			break;
-
 		}
 		case 13:
 		{
-			s_case	= f_d;
-			s_case = f_D;
+			s_case = f_Four;
 			break;
-
-		}
-		case 14:
-		{
-			s_case	= f_e;
-			s_case = f_E;
-			break;
-
 		}
 		case 15:
 		{
-			s_case	= f_f;
-			s_case = f_F;
+			s_case	= f_One;
 			break;
-
 		}
 		case 16:
 		{
-			s_case	= f_g;
-			s_case = f_G;
+			s_case =  f_Two;
 			break;
-
 		}
-
-
-
+		case 17:
+		{
+			s_case = f_Three;
+			break;
+		}
+		case 18:
+		{
+			s_case = f_Four;
+			break;
+		}
+		case 19:
+		{
+			s_case = f_Five;
+			break;
+		}
+		case 20:
+		{
+			s_case = f_Six;
+			break;
+		}
+		case 22:
+		{
+			s_case	= f_One;
+			break;
+		}
+		case 23:
+		{
+			s_case =  f_Two;
+			break;
+		}
+		case 24:
+		{
+			s_case = f_Three;
+			break;
+		}
+		case 25:
+		{
+			s_case = f_Four;
+			break;
+		}
+		case 26:
+		{
+			s_case = f_Five;
+			break;
+		}
 	}
 }
 /*********************************************************** END **************************************************************************/
@@ -922,6 +1056,12 @@ int f_Menu(void)
 	f_INT_count=1;
 	sw_flag = 1;
 	s_case = 0;
+
+	f_Menu_flag		= 1;
+	f_NFC_flag		= 0;
+	f_NFC_W_flag	= 0;
+	f_NFC_R_flag	= 0;
+
 
 	return 0;
 }
@@ -1080,7 +1220,7 @@ int main(void)
 
 	HAL_UART_Receive_IT(&huart1,rxData,1);
 
-  /* USER CODE END 2 */
+ /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -1112,171 +1252,204 @@ int main(void)
 			newMsg=0;
 		}
 
-
-
 		/* This switch case is using for calling Sensor functions */
-		switch(s_case)
+		if(f_Menu_flag)
 		{
+			switch(s_case)
+			{
+				case 0:
+				{
+					break;
+				}
+				case f_One:
+				{
+					sw_flag=0;
+					f_Temperature();
+					break;
+				}
+				case f_Two:
+				{
+					sw_flag=0;
+					f_Humidity();
+					break;
+				}
+				case f_Three:
+				{
+
+					sw_flag=0;
+					f_Pressure();
+					break;
+				}
+				case f_Four:
+				{
+					sw_flag=0;
+					f_ACCELEROMETER();
+					break;
+				}
+				case f_Five:
+				{
+					sw_flag=0;
+					f_GYRO();
+					break;
+				}
+				case f_Six:
+				{
+					sw_flag=0;
+					f_MAGNETOMETERR();
+					break;
+				}
+				case f_Seven:
+				{
+					sw_flag=0;
+					Proximity_Test();
+					break;
+				}
+				case f_Eight:
+				{
+					sw_flag=0;
+					f_NFC_flag=1;
+					f_NFC();
+					s_case=0;
+					break;
+				}
+
+				case f_escape:
+				{
+					sw_flag=0;
+					f_Menu();
+					break;
+				}
+				default :
+				{
+					f_Invalid();
+				}
+			}
+		}
+
+	/****************************************************/
+
+		if(f_NFC_flag)
+		{
+			switch(s_case)
+			{
+				case 0:
+				{
+					break;
+				}
+				case f_One:
+				{
+					f_NFC_D();
+					s_case=0;
+					break;
+				}
+				case f_Two:
+				{
+					f_NFC_W();
+					s_case=0;
+					break;
+				}
+				case f_Three:
+				{
+					f_NFC_R();
+					s_case=0;
+					break;
+				}
+				case f_escape:
+				{
+					sw_flag=0;
+					f_Menu();
+					break;
+				}
+				default :
+				{
+					f_Invalid();
+				}
+			}
+		}
+
+		if(f_NFC_W_flag)
+		{
+			switch(s_case)
+			{
+				case 0:
+				{
+					break;
+				}
+				case f_One:
+				{
+					s_case=0;
+					NFC_examples[0].DemoFunc();
+					break;
+				}
+				case f_Two:
+				{
+					s_case=0;
+					NFC_examples[2].DemoFunc();
+					break;
+				}
+				case f_Three:
+				{
+					s_case=0;
+					NFC_examples[4].DemoFunc();
+					break;
+				}
+				case f_Four:
+				{
+					s_case=0;
+					NFC_examples[6].DemoFunc();
+					break;
+				}
+				case f_Five:
+				{
+					s_case=0;
+					NFC_examples[8].DemoFunc();
+					break;
+				}
+				case f_escape:
+				{
+					sw_flag=0;
+					f_Menu();
+					break;
+				}
+				default :
+				{
+					f_Invalid();
+				}
+
+			}
+		}
+		if(f_NFC_R_flag)
+		{
+			switch(s_case)
+			{
 			case 0:
 			{
 				break;
 			}
 			case f_One:
 			{
-				sw_flag=0;
-				f_Temperature();
+				s_case=0;
+				NFC_examples[1].DemoFunc();
 				break;
 			}
 			case f_Two:
 			{
-				sw_flag=0;
-				f_Humidity();
+				s_case=0;
+				NFC_examples[3].DemoFunc();
 				break;
 			}
 			case f_Three:
 			{
-
-				sw_flag=0;
-				f_Pressure();
+				s_case=0;
+				NFC_examples[5].DemoFunc();
 				break;
 			}
 			case f_Four:
 			{
-				sw_flag=0;
-				f_ACCELEROMETER();
-				break;
-			}
-			case f_Five:
-			{
-				sw_flag=0;
-				f_GYRO();
-				break;
-			}
-			case f_Six:
-			{
-				sw_flag=0;
-				f_MAGNETOMETERR();
-				break;
-			}
-			case f_Seven:
-			{
-				sw_flag=0;
-				Proximity_Test();
-				break;
-			}
-			case f_Eight:
-			{
-				sw_flag=0;
-				NFC_examples[0].DemoFunc();
 				s_case=0;
-				break;
-			}
-			case f_Nine:
-			{
-				sw_flag=0;
-				NFC_examples[1].DemoFunc();
-				s_case=0;
-				break;
-			}
-			case f_a :
-			{
-				sw_flag=0;
-				NFC_examples[2].DemoFunc();
-				s_case=0;
-				break;
-			}
-			case f_A :
-			{
-				sw_flag=0;
-				NFC_examples[2].DemoFunc();
-				s_case=0;
-				break;
-			}
-			case f_b :
-			{
-				sw_flag=0;
-				NFC_examples[3].DemoFunc();
-				s_case=0;
-				break;
-			}
-			case f_B :
-			{
-				sw_flag=0;
-				NFC_examples[3].DemoFunc();
-				s_case=0;
-				break;
-			}
-			case f_c :
-			{
-				sw_flag=0;
-				NFC_examples[4].DemoFunc();
-				s_case=0;
-				break;
-			}
-			case f_C :
-			{
-				sw_flag=0;
-				NFC_examples[4].DemoFunc();
-				s_case=0;
-				break;
-			}
-			case f_d :
-			{
-				sw_flag=0;
-				NFC_examples[5].DemoFunc();
-				s_case=0;
-				break;
-			}
-			case f_D :
-			{
-				sw_flag=0;
-				NFC_examples[5].DemoFunc();
-				s_case=0;
-				break;
-			}
-			case f_e :
-			{
-				sw_flag=0;
-				NFC_examples[6].DemoFunc();
-				s_case=0;
-				break;
-			}
-			case f_E :
-			{
-				sw_flag=0;
-				NFC_examples[6].DemoFunc();
-				s_case=0;
-				break;
-			}
-			case f_f :
-			{
-				sw_flag=0;
 				NFC_examples[7].DemoFunc();
-				s_case=0;
 				break;
 			}
-			case f_F :
-			{
-				sw_flag=0;
-				NFC_examples[7].DemoFunc();
-				s_case=0;
-				break;
-			}
-			case f_g :
-			{
-				sw_flag=0;;
-				NFC_examples[8].DemoFunc();
-				s_case=0;
-				break;
-			}
-			case f_G :
-			{
-				sw_flag=0;
-				NFC_examples[8].DemoFunc();
-				s_case=0;
-				break;
-			}
-
 			case f_escape:
 			{
 				sw_flag=0;
@@ -1287,9 +1460,12 @@ int main(void)
 			{
 				f_Invalid();
 			}
-		}
 
+			}
+		}
   }
+
+
   /* USER CODE END 3 */
 }
 
@@ -1544,7 +1720,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, ARD_D10_Pin|SPBTLE_RF_RST_Pin|ARD_D9_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, ARD_D8_Pin|ISM43362_BOOT0_Pin|ISM43362_WAKEUP_Pin|LED2_Pin
+  HAL_GPIO_WritePin(GPIOB, ARD_D8_Pin|ISM43362_BOOT0_Pin|ISM43362_WAKEUP_Pin|LED14_Pin
                           |SPSGRF_915_SDN_Pin|ARD_D5_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
@@ -1630,9 +1806,9 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(ARD_D6_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : ARD_D8_Pin ISM43362_BOOT0_Pin ISM43362_WAKEUP_Pin LED2_Pin
+  /*Configure GPIO pins : ARD_D8_Pin ISM43362_BOOT0_Pin ISM43362_WAKEUP_Pin LED14_Pin
                            SPSGRF_915_SDN_Pin ARD_D5_Pin SPSGRF_915_SPI3_CSN_Pin */
-  GPIO_InitStruct.Pin = ARD_D8_Pin|ISM43362_BOOT0_Pin|ISM43362_WAKEUP_Pin|LED2_Pin
+  GPIO_InitStruct.Pin = ARD_D8_Pin|ISM43362_BOOT0_Pin|ISM43362_WAKEUP_Pin|LED14_Pin
                           |SPSGRF_915_SDN_Pin|ARD_D5_Pin|SPSGRF_915_SPI3_CSN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;

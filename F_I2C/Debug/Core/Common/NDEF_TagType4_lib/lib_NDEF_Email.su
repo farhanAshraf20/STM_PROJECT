@@ -1,4 +1,4 @@
 lib_NDEF_Email.c:56:13:NDEF_FillEmailStruct	40	static
 lib_NDEF_Email.c:136:13:NDEF_ReadURI_Email	24	static
 lib_NDEF_Email.c:168:10:NDEF_ReadEmail	40	static
-lib_NDEF_Email.c:214:10:NDEF_WriteEmail	48	static
+lib_NDEF_Email.c:215:10:NDEF_WriteEmail	48	static

@@ -198,6 +198,7 @@ uint16_t NDEF_ReadEmail(sRecordInfo *pRecordStruct, sEmailInfo *pEmailStruct)
         pData += *pData+1;
         
         memcpy(pEmailStruct->Information, pData, PayloadSize);
+        printf("Test : %s\n",pEmailStruct->Information);
       }
     }
   }

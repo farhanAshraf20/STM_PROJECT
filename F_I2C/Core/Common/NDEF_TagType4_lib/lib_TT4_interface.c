@@ -262,6 +262,7 @@ uint16_t TT4_ReadEmail (sEmailInfo *pEmailStruct)
     if(NDEF_IdentifyNDEF( pRecordStruct, NDEF_Buffer) == NDEF_SUCCESS)
     {
       status = NDEF_ReadEmail(pRecordStruct, pEmailStruct);
+     // printf("%d\n",status);
     }
      NFC_TT4_CloseNDEFSession(pCCFile->FileID);
   }
