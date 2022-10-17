@@ -225,6 +225,11 @@ static uint8_t              uDIDbyte =0x00;
 
 uint8_t uSynchroMode = M24SR_WAITINGTIME_POLLING;
 uint8_t uGpoMode     = M24SR_GPO_POLLING;
+
+//farhan
+
+/*uint8_t uSynchroMode = M24SR_INTERRUPT_GPO;
+uint8_t uGpoMode     = M24SR_GPO_INTERRUPT;*/
 volatile uint8_t    GPO_Low = 0;
 
 /**
@@ -552,6 +557,7 @@ void M24SR_GPO_Callback( void )
 {    
   if( uSynchroMode == M24SR_INTERRUPT_GPO)
   {
+	printf("in M24SR_GPO_Callback\n\n");
     GPO_Low = 1;
   }
 }
@@ -1537,9 +1543,9 @@ static uint16_t M24SR_IsAnswerReady (uint16_t DeviceAddr)
     if(NFC_IO_IsDeviceReady(DeviceAddr, NFC_IO_TRIALS) != NFC_IO_STATUS_SUCCESS)
     {
       return  M24SR_ERROR_TIMEOUT;
-    } 
+    }
     break;
-    
+
   case M24SR_WAITINGTIME_TIMEOUT :
     /* M24SR FWI=5 => (256*16/fc)*2^5=9.6ms but M24SR ask for extended time to program up to 246Bytes. */
     NFC_IO_Delay(M24SR_ANSWER_TIMEOUT);    

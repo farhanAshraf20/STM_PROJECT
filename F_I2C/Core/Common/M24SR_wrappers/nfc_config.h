@@ -46,12 +46,16 @@
 /**
   * @brief  M24SR_GPO_Config_Mode
   */
-#define M24SR_I2C_GPO_POLLING   0 /* Normal  I²C polling */
+#define M24SR_I2C_GPO_POLLING   0 /* Normal  Iï¿½C polling */
 #define M24SR_I2C_GPO_SYNCHRO   1 /* allow to use GPO polling as I2C synchronization */ 
 #define M24SR_I2C_GPO_INTERRUPT 2 /* allow to use GPO interrupt as I2C synchronization */ 
 /* The maximum size of a NDEF will be 64kBits with M24SR64 */
 /* if smaller memory used update this define to save space */
-#define M24SR_I2C_GPO_MODE            M24SR_I2C_GPO_INTERRUPT
+//#define M24SR_I2C_GPO_MODE            M24SR_I2C_GPO_INTERRUPT
+
+//farhan changes M24SR_GPO_Config_Mode /* allow to use GPO polling as I2C synchronization */
+
+#define M24SR_I2C_GPO_MODE            M24SR_I2C_GPO_SYNCHRO
   
 /**
   * @}
